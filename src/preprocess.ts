@@ -6,8 +6,6 @@ import * as Constants from './util/constants';
 import { BuildError } from './util/errors';
 import { getBooleanPropertyValue, getStringPropertyValue } from './util/helpers';
 import { BuildContext, ChangedFile } from './util/interfaces';
-import { optimization } from './optimization';
-import { deepLinking, deepLinkingUpdate } from './deep-linking';
 import { bundleCoreComponents } from './core/bundle-components';
 
 
@@ -25,12 +23,13 @@ export function preprocess(context: BuildContext) {
 
 function preprocessWorker(context: BuildContext) {
   const bundlePromise = bundleCoreComponents(context);
-  const deepLinksPromise = getBooleanPropertyValue(Constants.ENV_PARSE_DEEPLINKS) ? deepLinking(context) : Promise.resolve();
+  // const deepLinksPromise = getBooleanPropertyValue(Constants.ENV_PARSE_DEEPLINKS) ? deepLinking(context) : Promise.resolve();
+  const deepLinksPromise = Promise.resolve();
   return Promise.all([bundlePromise, deepLinksPromise])
     .then(() => {
-      if (context.optimizeJs) {
-        return optimization(context, null);
-      }
+      // if (context.optimizeJs) {
+      //   return optimization(context, null);
+      // }
     }).then(() => {
       if (getBooleanPropertyValue(Constants.ENV_AOT_WRITE_TO_DISK)) {
         writeFilesToDisk(context);
@@ -60,9 +59,9 @@ export function preprocessUpdate(changedFiles: ChangedFile[], context: BuildCont
     promises.push(bundleCoreComponents(context));
   }
 
-  if (getBooleanPropertyValue(Constants.ENV_PARSE_DEEPLINKS)) {
-    promises.push(deepLinkingUpdate(changedFiles, context));
-  }
+  // if (getBooleanPropertyValue(Constants.ENV_PARSE_DEEPLINKS)) {
+  //   promises.push(deepLinkingUpdate(changedFiles, context));
+  // }
 
   return Promise.all(promises);
 }

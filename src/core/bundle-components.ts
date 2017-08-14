@@ -3,10 +3,7 @@ import { Logger } from '../logger/logger';
 import * as fs from 'fs';
 import * as path from 'path';
 import * as nodeSass from 'node-sass';
-import * as rollup from 'rollup';
 import * as typescript from 'typescript';
-import * as uglify from 'uglify-js';
-import * as cleanCss from 'clean-css';
 
 
 export function bundleCoreComponents(context: BuildContext) {
@@ -22,13 +19,13 @@ export function bundleCoreComponents(context: BuildContext) {
     destDir: context.buildDir,
     attrCase: 'lower',
     packages: {
-      cleanCss: cleanCss,
+      // cleanCss: cleanCss,
       fs: fs,
       path: path,
       nodeSass: nodeSass,
-      rollup: rollup,
+      // rollup: rollup,
       typescript: typescript,
-      uglify: uglify
+      // uglify: uglify
     },
     watch: context.isWatch
   };

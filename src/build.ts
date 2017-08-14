@@ -1,21 +1,16 @@
 import * as Constants from './util/constants';
-import { BuildContext, BuildState, BuildUpdateMessage, ChangedFile } from './util/interfaces';
+import { BuildContext } from './util/interfaces';
 import { BuildError } from './util/errors';
-import { emit, EventType } from './util/events';
-import { getBooleanPropertyValue, readFileAsync, setContext } from './util/helpers';
-import { bundle, bundleUpdate } from './bundle';
+import { readFileAsync, setContext } from './util/helpers';
+import { bundle } from './bundle';
 import { clean } from './clean';
 import { copy } from './copy';
-import { lint, lintUpdate } from './lint';
 import { Logger } from './logger/logger';
-import { minifyCss, minifyJs } from './minify';
-import { ngc } from './ngc';
 import { getTsConfigAsync, TsConfig } from './transpile';
 import { postprocess } from './postprocess';
-import { preprocess, preprocessUpdate } from './preprocess';
-import { sass, sassUpdate } from './sass';
-import { templateUpdate } from './template';
-import { transpile, transpileUpdate, transpileDiagnosticsOnly } from './transpile';
+import { preprocess } from './preprocess';
+import { sass } from './sass';
+import { transpile } from './transpile';
 
 export function build(context: BuildContext) {
   setContext(context);
@@ -98,7 +93,8 @@ function buildProject(context: BuildContext) {
   buildId++;
 
   const copyPromise = copy(context);
-  const compilePromise = (context.runAot) ? ngc(context) : transpile(context);
+  // const compilePromise = (context.runAot) ? ngc(context) : transpile(context);
+  const compilePromise = transpile(context);
 
   return compilePromise
     .then(() => {
@@ -108,10 +104,12 @@ function buildProject(context: BuildContext) {
       return bundle(context);
     })
     .then(() => {
-      const minPromise = (context.runMinifyJs) ? minifyJs(context) : Promise.resolve();
+      // const minPromise = (context.runMinifyJs) ? minifyJs(context) : Promise.resolve();
+      const minPromise = Promise.resolve();
       const sassPromise = sass(context)
         .then(() => {
-          return (context.runMinifyCss) ? minifyCss(context) : Promise.resolve();
+          // return (context.runMinifyCss) ? minifyCss(context) : Promise.resolve();
+          return Promise.resolve();
         });
 
       return Promise.all([
@@ -124,6 +122,7 @@ function buildProject(context: BuildContext) {
       return postprocess(context);
     })
     .then(() => {
+      /*
       if (getBooleanPropertyValue(Constants.ENV_ENABLE_LINT)) {
         // kick off the tslint after everything else
         // nothing needs to wait on its completion unless bailing on lint error is enabled
@@ -132,12 +131,14 @@ function buildProject(context: BuildContext) {
           return result;
         }
       }
+      */
     })
     .catch(err => {
       throw new BuildError(err);
     });
 }
 
+/*
 export function buildUpdate(changedFiles: ChangedFile[], context: BuildContext) {
   return new Promise(resolve => {
     const logger = new Logger('build');
@@ -212,11 +213,9 @@ export function buildUpdate(changedFiles: ChangedFile[], context: BuildContext) 
       });
   });
 }
+*/
 
-/**
- * Collection of all the build tasks than need to run
- * Each task will only run if it's set with eacn BuildState.
- */
+/*
 function buildUpdateTasks(changedFiles: ChangedFile[], context: BuildContext) {
   const resolveValue: BuildTaskResolveValue = {
     requiresAppReload: false,
@@ -309,7 +308,9 @@ function buildUpdateTasks(changedFiles: ChangedFile[], context: BuildContext) {
       return resolveValue;
     });
 }
+*/
 
+/*
 function loadFiles(changedFiles: ChangedFile[], context: BuildContext) {
   // UPDATE IN-MEMORY FILE CACHE
   let promises: Promise<any>[] = [];
@@ -329,17 +330,14 @@ function loadFiles(changedFiles: ChangedFile[], context: BuildContext) {
 
   return Promise.all(promises);
 }
+*/
 
+/*
 interface BuildTaskResolveValue {
   requiresAppReload: boolean;
   changedFiles: ChangedFile[];
 }
 
-/**
- * parallelTasks are for any tasks that can run parallel to the entire
- * build, but we still need to make sure they've completed before we're
- * all done, it's also possible there are no parallelTasks at all
- */
 function buildUpdateParallelTasks(changedFiles: ChangedFile[], context: BuildContext) {
   const parallelTasks: Promise<any>[] = [];
 
@@ -349,5 +347,6 @@ function buildUpdateParallelTasks(changedFiles: ChangedFile[], context: BuildCon
 
   return Promise.all(parallelTasks);
 }
+*/
 
 let buildId = 0;

@@ -1,20 +1,15 @@
-import { EventEmitter } from 'events';
-import { dirname, join } from 'path';
-
+import { dirname } from 'path';
 import * as webpackApi from 'webpack';
-
 import { Logger } from './logger/logger';
 import { fillConfigDefaults, getUserConfigFile, replacePathVars } from './util/config';
-import * as Constants from './util/constants';
-import { BuildError, IgnorableError } from './util/errors';
-import { emit, EventType } from './util/events';
-import { getBooleanPropertyValue, printDependencyMap, webpackStatsToDependencyMap, writeFileAsync } from './util/helpers';
-import { BuildContext, BuildState, ChangedFile, TaskInfo } from './util/interfaces';
+import { BuildError } from './util/errors';
+import { BuildContext, BuildState, TaskInfo } from './util/interfaces';
 
-
+/*
 const eventEmitter = new EventEmitter();
 const INCREMENTAL_BUILD_FAILED = 'incremental_build_failed';
 const INCREMENTAL_BUILD_SUCCESS = 'incremental_build_success';
+*/
 
 /*
  * Due to how webpack watch works, sometimes we start an update event
@@ -25,7 +20,9 @@ const INCREMENTAL_BUILD_SUCCESS = 'incremental_build_success';
  * To mitigate this, store pending "webpack watch"/bundle update promises in this array and only resolve the
  * the most recent one. reject all others at that time with an IgnorableError.
  */
+/*
 let pendingPromises: Promise<any>[] = [];
+*/
 
 export function webpack(context: BuildContext, configFile: string) {
   configFile = getUserConfigFile(context, taskInfo, configFile);
@@ -43,7 +40,7 @@ export function webpack(context: BuildContext, configFile: string) {
     });
 }
 
-
+/*
 export function webpackUpdate(changedFiles: ChangedFile[], context: BuildContext, configFile?: string) {
   const logger = new Logger('webpack update');
   const webpackConfig = getWebpackConfig(context, configFile);
@@ -67,17 +64,20 @@ export function webpackUpdate(changedFiles: ChangedFile[], context: BuildContext
       throw logger.fail(err);
     });
 }
-
+*/
 
 export function webpackWorker(context: BuildContext, configFile: string): Promise<any> {
   const webpackConfig = getWebpackConfig(context, configFile);
 
+  /*
   let promise: Promise<any> = null;
   if (context.isWatch) {
     promise = runWebpackIncrementalBuild(!context.webpackWatch, context, webpackConfig);
   } else {
     promise = runWebpackFullBuild(webpackConfig);
   }
+  */
+  let promise: Promise<any> = runWebpackFullBuild(webpackConfig);
 
   return promise
     .then((stats: any) => {
@@ -86,12 +86,12 @@ export function webpackWorker(context: BuildContext, configFile: string): Promis
 }
 
 function webpackBuildComplete(stats: any, context: BuildContext, webpackConfig: WebpackConfig) {
-  if (getBooleanPropertyValue(Constants.ENV_PRINT_WEBPACK_DEPENDENCY_TREE)) {
-    Logger.debug('Webpack Dependency Map Start');
-    const dependencyMap = webpackStatsToDependencyMap(context, stats);
-    printDependencyMap(dependencyMap);
-    Logger.debug('Webpack Dependency Map End');
-  }
+  // if (getBooleanPropertyValue(Constants.ENV_PRINT_WEBPACK_DEPENDENCY_TREE)) {
+  //   Logger.debug('Webpack Dependency Map Start');
+  //   const dependencyMap = webpackStatsToDependencyMap(context, stats);
+  //   printDependencyMap(dependencyMap);
+  //   Logger.debug('Webpack Dependency Map End');
+  // }
 
   // set the module files used in this bundle
   // this reference can be used elsewhere in the build (sass)
@@ -143,6 +143,7 @@ export function runWebpackFullBuild(config: WebpackConfig) {
   });
 }
 
+/*
 function runWebpackIncrementalBuild(initializeWatch: boolean, context: BuildContext, config: WebpackConfig) {
   const promise = new Promise((resolve, reject) => {
     // start listening for events, remove listeners once an event is received
@@ -167,7 +168,9 @@ function runWebpackIncrementalBuild(initializeWatch: boolean, context: BuildCont
 
   return promise;
 }
+*/
 
+/*
 function handleWebpackBuildFailure(resolve: Function, reject: Function, error: Error, promise: Promise<any>, pendingPromises: Promise<void>[]) {
   // check if the promise if the last promise in the list of pending promises
   if (pendingPromises.length > 0 && pendingPromises[pendingPromises.length - 1] === promise) {
@@ -178,7 +181,9 @@ function handleWebpackBuildFailure(resolve: Function, reject: Function, error: E
   // for all others, reject with an ignorable error
   reject(new IgnorableError());
 }
+*/
 
+/*
 function handleWebpackBuildSuccess(resolve: Function, reject: Function, stats: any, promise: Promise<any>, pendingPromises: Promise<void>[]) {
   // check if the promise if the last promise in the list of pending promises
   if (pendingPromises.length > 0 && pendingPromises[pendingPromises.length - 1] === promise) {
@@ -190,7 +195,9 @@ function handleWebpackBuildSuccess(resolve: Function, reject: Function, stats: a
   Logger.debug('handleWebpackBuildSuccess: Rejecting with ignorable error');
   reject(new IgnorableError());
 }
+*/
 
+/*
 function startWebpackWatch(context: BuildContext, config: WebpackConfig) {
   Logger.debug('Starting Webpack watch');
   const compiler = webpackApi(config);
@@ -202,6 +209,7 @@ function startWebpackWatch(context: BuildContext, config: WebpackConfig) {
     }
   });
 }
+*/
 
 export function getWebpackConfig(context: BuildContext, configFile: string): WebpackConfig {
   configFile = getUserConfigFile(context, taskInfo, configFile);
@@ -213,11 +221,12 @@ export function getWebpackConfig(context: BuildContext, configFile: string): Web
   return webpackConfig;
 }
 
-
+/*
 export function getOutputDest(context: BuildContext) {
   const webpackConfig = getWebpackConfig(context, null);
   return join(webpackConfig.output.path, webpackConfig.output.filename);
 }
+*/
 
 const taskInfo: TaskInfo = {
   fullArg: '--webpack',

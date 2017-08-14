@@ -1,6 +1,5 @@
 import { join, resolve } from 'path';
 import { accessSync, readJSONSync, statSync } from 'fs-extra';
-
 import { Logger } from '../logger/logger';
 import { BuildContext, TaskInfo } from './interfaces';
 import { getBooleanPropertyValue, objectAssign } from './helpers';

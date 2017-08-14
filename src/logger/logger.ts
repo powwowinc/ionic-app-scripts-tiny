@@ -1,7 +1,4 @@
 import { BuildError, IgnorableError } from '../util/errors';
-import { isDebugMode } from '../util/config';
-import * as chalk from 'chalk';
-
 
 export class Logger {
   private start: number;
@@ -10,10 +7,10 @@ export class Logger {
   constructor(scope: string) {
     this.start = Date.now();
     this.scope = scope;
-    let msg = `${scope} started ${chalk.dim('...')}`;
-    if (isDebugMode()) {
-      msg += memoryUsage();
-    }
+    let msg = `${scope} started...`; // `${scope} started ${chalk.dim('...')}`;
+    // if (isDebugMode()) {
+    //   msg += memoryUsage();
+    // }
     Logger.info(msg);
   }
 
@@ -42,18 +39,18 @@ export class Logger {
     }
 
     let msg = `${this.scope} ${type}`;
-    if (color) {
-      msg = (<any>chalk)[color](msg);
-    }
-    if (bold) {
-      msg = chalk.bold(msg);
-    }
+    // if (color) {
+    //   msg = (<any>chalk)[color](msg);
+    // }
+    // if (bold) {
+    //   msg = chalk.bold(msg);
+    // }
 
-    msg += ' ' + chalk.dim(time);
+    msg += ' ' + time; // chalk.dim(time);
 
-    if (isDebugMode()) {
-      msg += memoryUsage();
-    }
+    // if (isDebugMode()) {
+    //   msg += memoryUsage();
+    // }
 
     Logger.info(msg);
   }
@@ -75,12 +72,12 @@ export class Logger {
 
           err.hasBeenLogged = true;
 
-          if (err.stack && isDebugMode()) {
-            Logger.debug(err.stack);
-          }
+          // if (err.stack && isDebugMode()) {
+          //   Logger.debug(err.stack);
+          // }
 
-        } else if (isDebugMode()) {
-          Logger.debug(`${failedMsg}`);
+        // } else if (isDebugMode()) {
+        //   Logger.debug(`${failedMsg}`);
         }
         return err;
       }
@@ -112,22 +109,22 @@ export class Logger {
     if (lines.length) {
       let prefix = timePrefix();
       let lineOneMsg = lines[0].substr(prefix.length);
-      if (color) {
-        lineOneMsg = (<any>chalk)[color](lineOneMsg);
-      }
-      if (bold) {
-        lineOneMsg = chalk.bold(lineOneMsg);
-      }
-      lines[0] = chalk.dim(prefix) + lineOneMsg;
+      // if (color) {
+      //   lineOneMsg = (<any>chalk)[color](lineOneMsg);
+      // }
+      // if (bold) {
+      //   lineOneMsg = chalk.bold(lineOneMsg);
+      // }
+      lines[0] = prefix + lineOneMsg; // chalk.dim(prefix) + lineOneMsg;
     }
     lines.forEach((line, lineIndex) => {
       if (lineIndex > 0) {
-        if (color) {
-          line = (<any>chalk)[color](line);
-        }
-        if (bold) {
-          line = chalk.bold(line);
-        }
+        // if (color) {
+        //   line = (<any>chalk)[color](line);
+        // }
+        // if (bold) {
+        //   line = chalk.bold(line);
+        // }
       }
       console.log(line);
     });
@@ -143,7 +140,7 @@ export class Logger {
       lines[0] = prefix + lines[0].substr(prefix.length);
     }
     lines.forEach(line => {
-      console.warn(chalk.yellow(line));
+      console.warn(line); // console.warn(chalk.yellow(line));
     });
   }
 
@@ -155,39 +152,39 @@ export class Logger {
     if (lines.length) {
       let prefix = timePrefix();
       lines[0] = prefix + lines[0].substr(prefix.length);
-      if (isDebugMode()) {
-        lines[0] += memoryUsage();
-      }
+      // if (isDebugMode()) {
+      //   lines[0] += memoryUsage();
+      // }
     }
     lines.forEach(line => {
-      console.error(chalk.red(line));
+      console.error(line); // console.error(chalk.red(line));
     });
   }
 
   static unformattedError(msg: string) {
-    console.error(chalk.red(msg));
+    console.error(msg); // console.error(chalk.red(msg));
   }
 
   static unformattedDebug(msg: string) {
-    console.log(chalk.cyan(msg));
+    console.log(msg); // console.log(chalk.cyan(msg));
   }
 
   /**
    * Prints out a blue colored DEBUG prefix. Only prints out when debug mode.
    */
   static debug(...msg: any[]) {
-    if (isDebugMode()) {
-      msg.push(memoryUsage());
-
-      const lines = Logger.wordWrap(msg);
-      if (lines.length) {
-        let prefix = '[ DEBUG! ]';
-        lines[0] = prefix + lines[0].substr(prefix.length);
-      }
-      lines.forEach(line => {
-        console.log(chalk.cyan(line));
-      });
-    }
+    // if (isDebugMode()) {
+    //   msg.push(memoryUsage());
+    //
+    //   const lines = Logger.wordWrap(msg);
+    //   if (lines.length) {
+    //     let prefix = '[ DEBUG! ]';
+    //     lines[0] = prefix + lines[0].substr(prefix.length);
+    //   }
+    //   lines.forEach(line => {
+    //     console.log(chalk.cyan(line));
+    //   });
+    // }
   }
 
   static wordWrap(msg: any[]) {
@@ -307,5 +304,5 @@ function timePrefix() {
 
 
 function memoryUsage() {
-  return chalk.dim(` MEM: ${(process.memoryUsage().rss / 1000000).toFixed(1)}MB`);
+  return ` MEM: ${(process.memoryUsage().rss / 1000000).toFixed(1)}MB`; // chalk.dim(` MEM: ${(process.memoryUsage().rss / 1000000).toFixed(1)}MB`);
 }

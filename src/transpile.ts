@@ -1,11 +1,8 @@
 import * as Constants from './util/constants';
 import { FileCache } from './util/file-cache';
-import { BuildContext, BuildState, ChangedFile } from './util/interfaces';
+import { BuildContext, BuildState } from './util/interfaces';
 import { BuildError } from './util/errors';
 import { buildJsSourceMaps } from './bundle';
-import { changeExtension } from './util/helpers';
-import { EventEmitter } from 'events';
-import { fork, ChildProcess } from 'child_process';
 import { inlineTemplate } from './template';
 import { Logger } from './logger/logger';
 import { readFileSync } from 'fs';
@@ -38,7 +35,7 @@ export function transpile(context: BuildContext) {
     });
 }
 
-
+/*
 export function transpileUpdate(changedFiles: ChangedFile[], context: BuildContext) {
   const workerConfig: TranspileWorkerConfig = {
     configFile: getTsConfigPath(context),
@@ -68,11 +65,8 @@ export function transpileUpdate(changedFiles: ChangedFile[], context: BuildConte
     });
 
 }
+*/
 
-
-/**
- * The full TS build for all app files.
- */
 export function transpileWorker(context: BuildContext, workerConfig: TranspileWorkerConfig) {
 
   // let's do this
@@ -131,7 +125,7 @@ export function transpileWorker(context: BuildContext, workerConfig: TranspileWo
   });
 }
 
-
+/*
 export function canRunTranspileUpdate(event: string, filePath: string, context: BuildContext) {
   if (event === 'change' && context.fileCache) {
     return context.fileCache.has(path.resolve(filePath));
@@ -139,11 +133,6 @@ export function canRunTranspileUpdate(event: string, filePath: string, context: 
   return false;
 }
 
-
-/**
- * Iterative build for one TS file. If it's not an existing file change, or
- * something errors out then it falls back to do the full build.
- */
 function transpileUpdateWorker(event: string, filePath: string, context: BuildContext, workerConfig: TranspileWorkerConfig) {
   try {
     clearDiagnostics(context, DiagnosticsType.TypeScript);
@@ -249,7 +238,7 @@ function runDiagnosticsWorker(context: BuildContext) {
   };
   diagnosticsWorker.send(msg);
 }
-
+*/
 
 export interface TranspileWorkerMessage {
   rootDir?: string;
@@ -257,7 +246,6 @@ export interface TranspileWorkerMessage {
   configFile?: string;
   transpileSuccess?: boolean;
 }
-
 
 function cleanFileNames(context: BuildContext, fileNames: string[]) {
   // make sure we're not transpiling the prod when dev and stuff
@@ -360,9 +348,9 @@ export function transpileTsString(context: BuildContext, filePath: string, strin
   return ts.transpileModule(stringToTranspile, transpileOptions);
 }
 
-
 let cachedProgram: ts.Program = null;
 let cachedTsConfig: TsConfig = null;
+
 
 export function getTsConfigPath(context: BuildContext) {
   return process.env[Constants.ENV_TS_CONFIG];

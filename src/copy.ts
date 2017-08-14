@@ -1,13 +1,11 @@
 import { mkdirpSync } from 'fs-extra';
 import { dirname as pathDirname, join as pathJoin, relative as pathRelative, resolve as pathResolve } from 'path';
 import { Logger } from './logger/logger';
-import { fillConfigDefaults, generateContext, getUserConfigFile, replacePathVars } from './util/config';
+import { fillConfigDefaults, getUserConfigFile, replacePathVars } from './util/config';
 import * as Constants from './util/constants';
-import { emit, EventType } from './util/events';
-import { generateGlobTasks, globAll, GlobObject, GlobResult } from './util/glob-util';
-import { copyFileAsync, getBooleanPropertyValue, rimRafAsync, unlinkAsync } from './util/helpers';
-import { BuildContext, ChangedFile, TaskInfo } from './util/interfaces';
-import { Watcher, copyUpdate as watchCopyUpdate } from './watch';
+import { globAll, GlobResult } from './util/glob-util';
+import { copyFileAsync, getBooleanPropertyValue, rimRafAsync } from './util/helpers';
+import { BuildContext, TaskInfo } from './util/interfaces';
 
 const copyFilePathCache = new Map<string, CopyToFrom[]>();
 
@@ -67,6 +65,7 @@ export function copyWorker(context: BuildContext, configFile: string) {
   });
 }
 
+/*
 export function copyUpdate(changedFiles: ChangedFile[], context: BuildContext) {
   const logger = new Logger('copy update');
   const configFile = getUserConfigFile(context, taskInfo, null);
@@ -118,6 +117,7 @@ export function copyUpdate(changedFiles: ChangedFile[], context: BuildContext) {
     throw logger.fail(err);
   });
 }
+*/
 
 function cleanDirectories(context: BuildContext, directoriesToCreate: Set<string>) {
   const filterOut = replacePathVars(context, FILTER_OUT_DIRS_FOR_CLEAN);
@@ -142,6 +142,7 @@ function deleteDirectories(directoryPaths: string[]) {
   return Promise.all(promises);
 }
 
+/*
 function processRemoveFile(changedFile: ChangedFile) {
   // delete any destination files that match the source file
   const list = copyFilePathCache.get(changedFile.filePath) || [];
@@ -184,6 +185,7 @@ function processRemoveDir(changedFile: ChangedFile): Promise<any> {
   emit(EventType.DirectoryDelete, Array.from(directoriesToRemove));
   return Promise.all(promises);
 }
+*/
 
 function cacheCopyData(copyObject: CopyToFrom) {
   let list = copyFilePathCache.get(copyObject.absoluteSourcePath);
@@ -244,6 +246,7 @@ function cleanConfigContent(dictionaryKeys: string[], copyConfig: CopyConfig, co
   });
 }
 
+/*
 export function copyConfigToWatchConfig(context: BuildContext): Watcher {
   if (!context) {
     context = generateContext(context);
@@ -282,6 +285,7 @@ export interface CopySrcToDestResult {
   dest: string;
   errorMessage: string;
 }
+*/
 
 export const taskInfo: TaskInfo = {
   fullArg: '--copy',
@@ -290,7 +294,6 @@ export const taskInfo: TaskInfo = {
   packageConfig: 'ionic_copy',
   defaultConfigFile: 'copy.config'
 };
-
 
 export interface CopyConfig {
   [index: string]: CopyOptions;
