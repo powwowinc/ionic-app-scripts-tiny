@@ -14,7 +14,7 @@
     "README.md"
   ],
   "bin": {
-    "ionic-app-scripts": "./bin/ionic-app-scripts.js"
+    "ionic-app-scripts-tiny": "./bin/ionic-app-scripts-tiny.js"
   },
   "scripts": {
     "build": "npm run clean && tsc",
@@ -94,10 +94,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/ionic-team/ionic-app-scripts.git"
-  },
-  "bugs": {
-    "url": "https://github.com/ionic-team/ionic-app-scripts/issues"
+    "url": "https://github.com/powwowinc/ionic-app-scripts-tiny"
   },
   "config": {
     "commitizen": {

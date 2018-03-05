@@ -25,7 +25,7 @@ import { getAppScriptsVersion, setContext } from './util/helpers';
 
 export function run(task: string) {
   try {
-    Logger.info(`ionic-app-scripts ${getAppScriptsVersion()}`, 'cyan');
+    Logger.info(`ionic-app-scripts-tiny ${getAppScriptsVersion()}`, 'cyan');
   } catch (e) {}
 
   try {
