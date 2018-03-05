@@ -1,8 +1,6 @@
 import { normalize, resolve } from 'path';
 import * as Constants from '../util/constants';
-import { changeExtension, getBooleanPropertyValue, getContext, readAndCacheFile} from '../util/helpers';
-import { Logger } from '../logger/logger';
-import { FileCache } from '../util/file-cache';
+import { changeExtension, getBooleanPropertyValue, getContext } from '../util/helpers';
 
 export function cacheLoader(source: string, map: any, webpackContex: any) {
   webpackContex.cacheable();

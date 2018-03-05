@@ -8,7 +8,6 @@ import { BuildContext, TaskInfo } from './util/interfaces';
 import { runWorker } from './worker-client';
 
 
-
 export function uglifyjs(context: BuildContext, configFile?: string) {
   configFile = getUserConfigFile(context, taskInfo, configFile);
 

@@ -1,13 +1,12 @@
-import { basename, dirname, join, relative } from 'path';
 import { emptyDirSync, mkdirpSync, writeFileSync } from 'fs-extra';
+import { basename, dirname, join, relative } from 'path';
+import { updateIndexHtml } from './core/inject-scripts';
 
 import { Logger } from './logger/logger';
 import * as Constants from './util/constants';
 import { getBooleanPropertyValue } from './util/helpers';
 import { BuildContext } from './util/interfaces';
-import { updateIndexHtml } from './core/inject-scripts';
 import { purgeSourceMapsIfNeeded } from './util/source-maps';
-import { removeUnusedFonts } from './optimization/remove-unused-fonts';
 
 
 export function postprocess(context: BuildContext) {
@@ -28,10 +27,6 @@ function postprocessWorker(context: BuildContext) {
 
   if (getBooleanPropertyValue(Constants.ENV_AOT_WRITE_TO_DISK)) {
     promises.push(writeFilesToDisk(context));
-  }
-
-  if (context.optimizeJs && getBooleanPropertyValue(Constants.ENV_PURGE_UNUSED_FONTS)) {
-    promises.push(removeUnusedFonts(context));
   }
 
   return Promise.all(promises);

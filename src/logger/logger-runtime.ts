@@ -1,9 +1,9 @@
-import { Diagnostic, PrintLine } from '../util/interfaces';
-import { escapeHtml, splitLineBreaks } from '../util/helpers';
-import { generateCodeBlock, getDiagnosticsHtmlContent } from './logger-diagnostics';
-import { highlight } from '../highlight/highlight';
 import { readFileSync } from 'fs';
-import { resolve , normalize} from 'path';
+import { normalize, resolve } from 'path';
+import { highlight } from '../highlight/highlight';
+import { escapeHtml, splitLineBreaks } from '../util/helpers';
+import { Diagnostic, PrintLine } from '../util/interfaces';
+import { generateCodeBlock, getDiagnosticsHtmlContent } from './logger-diagnostics';
 
 
 export function generateRuntimeDiagnosticContent(rootDir: string, buildDir: string, runtimeErrorMessage: string, runtimeErrorStack: string) {

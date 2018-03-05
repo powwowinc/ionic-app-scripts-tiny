@@ -1,15 +1,15 @@
-import { BuildContext } from './util/interfaces';
+import { createHttpServer } from './dev-server/http-server';
+import { createLiveReloadServer } from './dev-server/live-reload';
+import { createNotificationServer } from './dev-server/notification-server';
+import { IONIC_LAB_URL, ServeConfig } from './dev-server/serve-config';
+import { Logger } from './logger/logger';
 import { getConfigValue, hasConfigValue } from './util/config';
 import { BuildError } from './util/errors';
 import { setContext } from './util/helpers';
-import { Logger } from './logger/logger';
-import { watch } from './watch';
-import open from './util/open';
-import { createNotificationServer } from './dev-server/notification-server';
-import { createHttpServer } from './dev-server/http-server';
-import { createLiveReloadServer } from './dev-server/live-reload';
-import { ServeConfig, IONIC_LAB_URL } from './dev-server/serve-config';
+import { BuildContext } from './util/interfaces';
 import { findClosestOpenPorts } from './util/network';
+import open from './util/open';
+import { watch } from './watch';
 
 const DEV_LOGGER_DEFAULT_PORT = 53703;
 const LIVE_RELOAD_DEFAULT_PORT = 35729;

@@ -1,5 +1,5 @@
-import { BuildContext } from '../util/interfaces';
 import { getSystemData, toUnixPath } from '../util/helpers';
+import { BuildContext } from '../util/interfaces';
 
 
 export function buildIonicGlobal(context: BuildContext) {

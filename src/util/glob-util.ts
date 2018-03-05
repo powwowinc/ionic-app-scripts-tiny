@@ -1,5 +1,5 @@
-import { dirname, isAbsolute, join, normalize, resolve as pathResolve, sep } from 'path';
 import * as globFunction from 'glob';
+import { dirname, isAbsolute, join, normalize, resolve as pathResolve, sep } from 'path';
 import { toUnixPath } from './helpers';
 
 

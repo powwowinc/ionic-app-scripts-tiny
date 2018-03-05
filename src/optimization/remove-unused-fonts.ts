@@ -1,6 +1,4 @@
 import { extname, join } from 'path';
-
-import { Logger } from '../logger/logger';
 import * as Constants from '../util/constants';
 import { getStringPropertyValue, readDirAsync, unlinkAsync } from '../util/helpers';
 import { BuildContext } from '../util/interfaces';

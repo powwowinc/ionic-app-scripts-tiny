@@ -1,11 +1,8 @@
+import * as chokidar from 'chokidar';
 import { extname, join, normalize, resolve as pathResolve } from 'path';
 
-import * as chokidar from 'chokidar';
-
 import * as buildTask from './build';
-import { copyUpdate as copyUpdateHandler} from './copy';
 import { Logger } from './logger/logger';
-import { canRunTranspileUpdate } from './transpile';
 import { fillConfigDefaults, getUserConfigFile, replacePathVars } from './util/config';
 import * as Constants from './util/constants';
 import { BuildError } from './util/errors';
@@ -287,7 +284,8 @@ export function copyUpdate(event: string, filePath: string, context: BuildContex
 
       if (changedFiles && changedFiles.length) {
         // cool, we've got some build updating to do ;)
-        copyUpdateHandler(changedFiles, context);
+        throw 'copyUpdateHandler'
+        // copyUpdateHandler(changedFiles, context);
       }
     }, BUILD_UPDATE_DEBOUNCE_MS);
   }
@@ -311,23 +309,23 @@ export function runBuildUpdate(context: BuildContext, changedFiles: ChangedFile[
 
   const tsFiles = changedFiles.filter(f => f.ext === '.ts');
   if (tsFiles.length) {
-    let requiresFullBuild = false;
-    for (const tsFile of tsFiles) {
-      if (!canRunTranspileUpdate(tsFile.event, tsFiles[0].filePath, context)) {
-        requiresFullBuild = true;
-        break;
-      }
-    }
+    // let requiresFullBuild = false;
+    // for (const tsFile of tsFiles) {
+      // if (!canRunTranspileUpdate(tsFile.event, tsFiles[0].filePath, context)) {
+      //   requiresFullBuild = true;
+        // break;
+      // }
+    // }
 
-    if (requiresFullBuild) {
+    // if (requiresFullBuild) {
       // .ts file was added or deleted, we need a full rebuild
       context.transpileState = BuildState.RequiresBuild;
       context.deepLinkState = BuildState.RequiresBuild;
-    } else {
+    // } else {
       // .ts files have changed, so we can get away with doing an update
-      context.transpileState = BuildState.RequiresUpdate;
-      context.deepLinkState = BuildState.RequiresUpdate;
-    }
+      // context.transpileState = BuildState.RequiresUpdate;
+      // context.deepLinkState = BuildState.RequiresUpdate;
+    // }
   }
 
 

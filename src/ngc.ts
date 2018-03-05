@@ -1,17 +1,7 @@
-import { RawSourceMap, SourceMapConsumer, SourceMapGenerator } from 'source-map';
-
 import { runAot } from './aot/aot-compiler';
-import {
-  convertDeepLinkConfigEntriesToString,
-  getUpdatedAppNgModuleContentWithDeepLinkConfig,
-  filterTypescriptFilesForDeepLinks,
-  hasExistingDeepLinkConfig,
-  purgeDeepLinkDecorator
-} from './deep-linking/util';
 import { Logger } from './logger/logger';
-import { getUserConfigFile} from './util/config';
+import { getUserConfigFile } from './util/config';
 import * as Constants from './util/constants';
-import { changeExtension, getBooleanPropertyValue, getParsedDeepLinkConfig, getStringPropertyValue } from './util/helpers';
 import { BuildContext, TaskInfo } from './util/interfaces';
 
 export function ngc(context: BuildContext, configFile?: string) {
@@ -44,17 +34,17 @@ export function runNgc(context: BuildContext, configFile: string): Promise<any> 
 }
 
 export function transformTsForDeepLinking(context: BuildContext) {
-  if (getBooleanPropertyValue(Constants.ENV_PARSE_DEEPLINKS)) {
-    const tsFiles = filterTypescriptFilesForDeepLinks(context.fileCache);
-    tsFiles.forEach(tsFile => {
-      tsFile.content = purgeDeepLinkDecorator(tsFile.content);
-    });
-    const tsFile = context.fileCache.get(getStringPropertyValue(Constants.ENV_APP_NG_MODULE_PATH));
-    if (!hasExistingDeepLinkConfig(tsFile.path, tsFile.content)) {
-      const deepLinkString = convertDeepLinkConfigEntriesToString(getParsedDeepLinkConfig());
-      tsFile.content = getUpdatedAppNgModuleContentWithDeepLinkConfig(tsFile.path, tsFile.content, deepLinkString);
-    }
-  }
+  // if (getBooleanPropertyValue(Constants.ENV_PARSE_DEEPLINKS)) {
+  //   const tsFiles = filterTypescriptFilesForDeepLinks(context.fileCache);
+  //   tsFiles.forEach(tsFile => {
+  //     tsFile.content = purgeDeepLinkDecorator(tsFile.content);
+  //   });
+  //   const tsFile = context.fileCache.get(getStringPropertyValue(Constants.ENV_APP_NG_MODULE_PATH));
+    // if (!hasExistingDeepLinkConfig(tsFile.path, tsFile.content)) {
+    //   const deepLinkString = convertDeepLinkConfigEntriesToString(getParsedDeepLinkConfig());
+    //   tsFile.content = getUpdatedAppNgModuleContentWithDeepLinkConfig(tsFile.path, tsFile.content, deepLinkString);
+    // }
+  // }
   return Promise.resolve();
 }
 

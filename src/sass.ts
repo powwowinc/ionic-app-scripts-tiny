@@ -1,15 +1,15 @@
-import { basename, dirname, join, sep } from 'path';
-import { BuildContext, BuildState, ChangedFile, TaskInfo } from './util/interfaces';
-import { BuildError } from './util/errors';
-import { bundle } from './bundle';
-import { ensureDirSync, readdirSync, writeFile } from 'fs-extra';
-import { fillConfigDefaults, getUserConfigFile, replacePathVars } from './util/config';
-import { Logger } from './logger/logger';
-import { runSassDiagnostics } from './logger/logger-sass';
-import { printDiagnostics, clearDiagnostics, DiagnosticsType } from './logger/logger-diagnostics';
-import { SassError, render as nodeSassRender, Result } from 'node-sass';
-import * as postcss from 'postcss';
 import * as autoprefixer from 'autoprefixer';
+import { ensureDirSync, readdirSync, writeFile } from 'fs-extra';
+import { render as nodeSassRender, Result, SassError } from 'node-sass';
+import { basename, dirname, join, sep } from 'path';
+import * as postcss from 'postcss';
+import { bundle } from './bundle';
+import { Logger } from './logger/logger';
+import { clearDiagnostics, DiagnosticsType, printDiagnostics } from './logger/logger-diagnostics';
+import { runSassDiagnostics } from './logger/logger-sass';
+import { fillConfigDefaults, getUserConfigFile, replacePathVars } from './util/config';
+import { BuildError } from './util/errors';
+import { BuildContext, BuildState, ChangedFile, TaskInfo } from './util/interfaces';
 
 
 export function sass(context: BuildContext, configFile?: string) {

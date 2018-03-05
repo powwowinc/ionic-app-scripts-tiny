@@ -1,20 +1,13 @@
-import { EventEmitter } from 'events';
-import { dirname, join } from 'path';
+import { dirname } from 'path';
 
 import * as webpackApi from 'webpack';
 
 import { Logger } from './logger/logger';
 import { fillConfigDefaults, getUserConfigFile, replacePathVars } from './util/config';
 import * as Constants from './util/constants';
-import { BuildError, IgnorableError } from './util/errors';
-import { emit, EventType } from './util/events';
-import { getBooleanPropertyValue, printDependencyMap, webpackStatsToDependencyMap, writeFileAsync } from './util/helpers';
-import { BuildContext, BuildState, ChangedFile, TaskInfo } from './util/interfaces';
-
-
-const eventEmitter = new EventEmitter();
-const INCREMENTAL_BUILD_FAILED = 'incremental_build_failed';
-const INCREMENTAL_BUILD_SUCCESS = 'incremental_build_success';
+import { BuildError } from './util/errors';
+import { getBooleanPropertyValue, printDependencyMap, webpackStatsToDependencyMap } from './util/helpers';
+import { BuildContext, BuildState, TaskInfo } from './util/interfaces';
 
 /*
  * Due to how webpack watch works, sometimes we start an update event
@@ -43,38 +36,13 @@ export function webpack(context: BuildContext, configFile: string) {
     });
 }
 
-
-export function webpackUpdate(changedFiles: ChangedFile[], context: BuildContext, configFile?: string) {
-  const logger = new Logger('webpack update');
-  const webpackConfig = getWebpackConfig(context, configFile);
-  Logger.debug('webpackUpdate: Starting Incremental Build');
-  const promisetoReturn = runWebpackIncrementalBuild(false, context, webpackConfig);
-  emit(EventType.WebpackFilesChanged, null);
-  return promisetoReturn.then((stats: any) => {
-      // the webpack incremental build finished, so reset the list of pending promises
-      pendingPromises = [];
-      Logger.debug('webpackUpdate: Incremental Build Done, processing Data');
-      return webpackBuildComplete(stats, context, webpackConfig);
-    }).then(() => {
-      context.bundleState = BuildState.SuccessfulBuild;
-      return logger.finish();
-    }).catch(err => {
-      context.bundleState = BuildState.RequiresBuild;
-      if (err instanceof IgnorableError) {
-        throw err;
-      }
-
-      throw logger.fail(err);
-    });
-}
-
-
 export function webpackWorker(context: BuildContext, configFile: string): Promise<any> {
   const webpackConfig = getWebpackConfig(context, configFile);
 
   let promise: Promise<any> = null;
   if (context.isWatch) {
-    promise = runWebpackIncrementalBuild(!context.webpackWatch, context, webpackConfig);
+    throw 'runWebpackIncrementalBuild';
+    // promise = runWebpackIncrementalBuild(!context.webpackWatch, context, webpackConfig);
   } else {
     promise = runWebpackFullBuild(webpackConfig);
   }
@@ -145,66 +113,6 @@ export function runWebpackFullBuild(config: WebpackConfig) {
   });
 }
 
-function runWebpackIncrementalBuild(initializeWatch: boolean, context: BuildContext, config: WebpackConfig) {
-  const promise = new Promise((resolve, reject) => {
-    // start listening for events, remove listeners once an event is received
-    eventEmitter.on(INCREMENTAL_BUILD_FAILED, (err: Error) => {
-      Logger.debug('Webpack Bundle Update Failed');
-      eventEmitter.removeAllListeners();
-      handleWebpackBuildFailure(resolve, reject, err, promise, pendingPromises);
-    });
-
-    eventEmitter.on(INCREMENTAL_BUILD_SUCCESS, (stats: any) => {
-      Logger.debug('Webpack Bundle Updated');
-      eventEmitter.removeAllListeners();
-      handleWebpackBuildSuccess(resolve, reject, stats, promise, pendingPromises);
-    });
-
-    if (initializeWatch) {
-      startWebpackWatch(context, config);
-    }
-  });
-
-  pendingPromises.push(promise);
-
-  return promise;
-}
-
-function handleWebpackBuildFailure(resolve: Function, reject: Function, error: Error, promise: Promise<any>, pendingPromises: Promise<void>[]) {
-  // check if the promise if the last promise in the list of pending promises
-  if (pendingPromises.length > 0 && pendingPromises[pendingPromises.length - 1] === promise) {
-    // reject this one with a build error
-    reject(new BuildError(error));
-    return;
-  }
-  // for all others, reject with an ignorable error
-  reject(new IgnorableError());
-}
-
-function handleWebpackBuildSuccess(resolve: Function, reject: Function, stats: any, promise: Promise<any>, pendingPromises: Promise<void>[]) {
-  // check if the promise if the last promise in the list of pending promises
-  if (pendingPromises.length > 0 && pendingPromises[pendingPromises.length - 1] === promise) {
-    Logger.debug('handleWebpackBuildSuccess: Resolving with Webpack data');
-    resolve(stats);
-    return;
-  }
-  // for all others, reject with an ignorable error
-  Logger.debug('handleWebpackBuildSuccess: Rejecting with ignorable error');
-  reject(new IgnorableError());
-}
-
-function startWebpackWatch(context: BuildContext, config: WebpackConfig) {
-  Logger.debug('Starting Webpack watch');
-  const compiler = webpackApi(config as any);
-  context.webpackWatch = compiler.watch({}, (err: Error, stats: any) => {
-    if (err) {
-      eventEmitter.emit(INCREMENTAL_BUILD_FAILED, err);
-    } else {
-      eventEmitter.emit(INCREMENTAL_BUILD_SUCCESS, stats);
-    }
-  });
-}
-
 export function getWebpackConfig(context: BuildContext, configFile: string): WebpackConfig {
   configFile = getUserConfigFile(context, taskInfo, configFile);
   const webpackConfigDictionary = fillConfigDefaults(configFile, taskInfo.defaultConfigFile);
@@ -221,12 +129,6 @@ export function getWebpackConfigFromDictionary(context: BuildContext, webpackCon
     return webpackConfigDictionary['prod'];
   }
   return webpackConfigDictionary['dev'];
-}
-
-
-export function getOutputDest(context: BuildContext) {
-  const webpackConfig = getWebpackConfig(context, null);
-  return join(webpackConfig.output.path, webpackConfig.output.filename);
 }
 
 const taskInfo: TaskInfo = {

@@ -1,6 +1,6 @@
+import { Logger } from './logger/logger';
 import { BuildError } from './util/errors';
 import { buildErrorToJson } from './util/helpers';
-import { Logger } from './logger/logger';
 import { WorkerMessage } from './util/interfaces';
 
 

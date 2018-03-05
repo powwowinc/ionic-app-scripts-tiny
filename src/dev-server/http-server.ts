@@ -1,24 +1,18 @@
-import * as path from 'path';
-import { injectNotificationScript } from './injector';
-import { injectLiveReloadScript } from './live-reload';
 import * as express from 'express';
 import * as fs from 'fs';
-import * as url from 'url';
-import {
-  ServeConfig,
-  LOGGER_DIR,
-  IONIC_LAB_URL,
-  IOS_PLATFORM_PATH,
-  ANDROID_PLATFORM_PATH
-} from './serve-config';
-import { Logger } from '../logger/logger';
+import * as path from 'path';
 import * as proxyMiddleware from 'proxy-middleware';
+import * as url from 'url';
+import { Logger } from '../logger/logger';
 import { injectDiagnosticsHtml } from '../logger/logger-diagnostics';
 import * as Constants from '../util/constants';
 import { getBooleanPropertyValue } from '../util/helpers';
 import { getProjectJson, IonicProject } from '../util/ionic-project';
+import { injectNotificationScript } from './injector';
 
-import { LabAppView, ApiCordovaProject, ApiPackageJson } from './lab';
+import { ApiCordovaProject, ApiPackageJson, LabAppView } from './lab';
+import { injectLiveReloadScript } from './live-reload';
+import { ANDROID_PLATFORM_PATH, IONIC_LAB_URL, IOS_PLATFORM_PATH, LOGGER_DIR, ServeConfig } from './serve-config';
 
 
 /**

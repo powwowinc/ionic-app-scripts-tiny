@@ -1,5 +1,4 @@
-import { join, relative, basename } from 'path';
-import { ensureDir, mkdirpSync } from 'fs-extra';
+import { basename, join } from 'path';
 import * as Constants from './constants';
 import { copyFileAsync, getBooleanPropertyValue, mkDirpAsync, readDirAsync, unlinkAsync } from './helpers';
 import { BuildContext } from './interfaces';

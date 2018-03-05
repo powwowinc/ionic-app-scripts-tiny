@@ -1,6 +1,6 @@
 import { basename, dirname, join } from 'path';
-import { FileSystem, VirtualFileSystem } from './interfaces';
 import { FileCache } from './file-cache';
+import { FileSystem, VirtualFileSystem } from './interfaces';
 import { VirtualDirStats, VirtualFileStats } from './virtual-file-utils';
 
 export class HybridFileSystem implements FileSystem, VirtualFileSystem {

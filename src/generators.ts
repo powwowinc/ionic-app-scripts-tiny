@@ -1,6 +1,6 @@
+import { generateTemplates, GeneratorOption, GeneratorRequest, getNgModules, hydrateRequest, hydrateTabRequest, nonPageFileManipulation, tabsModuleManipulation } from './generators/util';
 import * as Constants from './util/constants';
 import { BuildContext } from './util/interfaces';
-import { hydrateRequest, hydrateTabRequest, getNgModules, GeneratorOption, GeneratorRequest, nonPageFileManipulation, generateTemplates, tabsModuleManipulation } from './generators/util';
 
 export { getNgModules, GeneratorOption, GeneratorRequest };
 

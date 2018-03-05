@@ -1,9 +1,9 @@
  const CommonChunksPlugin = require('webpack/lib/optimize/CommonsChunkPlugin');
 
-import * as Constants from '../util/constants';
-import { getStringPropertyValue } from '../util/helpers';
+ import * as Constants from '../util/constants';
+ import { getStringPropertyValue } from '../util/helpers';
 
-export function getCommonChunksPlugin() {
+ export function getCommonChunksPlugin() {
   return new CommonChunksPlugin({
     name: 'vendor',
     minChunks: checkIfInNodeModules

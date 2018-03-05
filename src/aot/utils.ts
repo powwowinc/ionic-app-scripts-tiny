@@ -1,13 +1,7 @@
 import { basename, dirname, join, normalize, relative, resolve } from 'path';
-import {
-  CallExpression,
-  Identifier,
-  PropertyAccessExpression,
-  SyntaxKind,
-  ScriptTarget
-} from 'typescript';
+import { CallExpression, Identifier, PropertyAccessExpression, ScriptTarget, SyntaxKind } from 'typescript';
 
-import { appendBefore, checkIfFunctionIsCalled, getTypescriptSourceFile, findNodes, insertNamedImportIfNeeded, replaceImportModuleSpecifier, replaceNamedImport, replaceNode } from '../util/typescript-utils';
+import { appendBefore, checkIfFunctionIsCalled, findNodes, getTypescriptSourceFile, insertNamedImportIfNeeded, replaceImportModuleSpecifier, replaceNamedImport, replaceNode } from '../util/typescript-utils';
 
 export function getFallbackMainContent() {
   return `

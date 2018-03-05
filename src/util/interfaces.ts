@@ -1,4 +1,3 @@
-import * as CompilerCLI from '@angular/compiler-cli';
 import { CompilerHost, CompilerOptions, Program } from 'typescript';
 
 import { FileCache } from './file-cache';
