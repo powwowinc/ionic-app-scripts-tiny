@@ -37,7 +37,6 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 Object.defineProperty(exports, "__esModule", { value: true });
 var util_1 = require("./build/util");
 var bundle_1 = require("./bundle");
-var clean_1 = require("./clean");
 var copy_1 = require("./copy");
 var deep_linking_1 = require("./deep-linking");
 var lint_1 = require("./lint");
@@ -95,8 +94,6 @@ function buildWorker(context) {
     });
 }
 function buildProject(context) {
-    // sync empty the www/build directory
-    clean_1.clean(context);
     buildId++;
     var copyPromise = copy_1.copy(context);
     return util_1.scanSrcTsFiles(context)
@@ -106,8 +103,7 @@ function buildProject(context) {
         }
     })
         .then(function () {
-        var compilePromise = (context.runAot) ? ngc_1.ngc(context) : transpile_1.transpile(context);
-        return compilePromise;
+        return (context.runAot) ? ngc_1.ngc(context) : transpile_1.transpile(context);
     })
         .then(function () {
         return preprocess_1.preprocess(context);

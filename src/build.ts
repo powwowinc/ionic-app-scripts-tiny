@@ -1,27 +1,16 @@
-import { join } from 'path';
-
-import {
-  readVersionOfDependencies,
-  scanSrcTsFiles,
-  validateRequiredFilesExist,
-  validateTsConfigSettings
-} from './build/util';
-
-
+import { readVersionOfDependencies, scanSrcTsFiles, validateRequiredFilesExist, validateTsConfigSettings } from './build/util';
 import { bundle, bundleUpdate } from './bundle';
-import { clean } from './clean';
 import { copy } from './copy';
 import { deepLinking, deepLinkingUpdate } from './deep-linking';
 import { lint, lintUpdate } from './lint';
 import { Logger } from './logger/logger';
 import { minifyCss, minifyJs } from './minify';
 import { ngc } from './ngc';
-import { getTsConfigAsync, TsConfig } from './transpile';
 import { postprocess } from './postprocess';
 import { preprocess, preprocessUpdate } from './preprocess';
 import { sass, sassUpdate } from './sass';
 import { templateUpdate } from './template';
-import { transpile, transpileUpdate, transpileDiagnosticsOnly } from './transpile';
+import { transpile, transpileDiagnosticsOnly, transpileUpdate } from './transpile';
 import * as Constants from './util/constants';
 import { BuildError } from './util/errors';
 import { emit, EventType } from './util/events';
@@ -55,9 +44,6 @@ async function buildWorker(context: BuildContext) {
 }
 
 function buildProject(context: BuildContext) {
-  // sync empty the www/build directory
-  clean(context);
-
   buildId++;
 
   const copyPromise = copy(context);
@@ -69,8 +55,7 @@ function buildProject(context: BuildContext) {
       }
     })
     .then(() => {
-      const compilePromise = (context.runAot) ? ngc(context) : transpile(context);
-      return compilePromise;
+      return (context.runAot) ? ngc(context) : transpile(context);
     })
     .then(() => {
       return preprocess(context);
