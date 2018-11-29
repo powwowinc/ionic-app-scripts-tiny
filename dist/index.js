@@ -45,7 +45,7 @@ var helpers_1 = require("./util/helpers");
 var logger_1 = require("./logger/logger");
 function run(task) {
     try {
-        logger_1.Logger.info("ionic-app-scripts " + helpers_1.getAppScriptsVersion(), 'cyan');
+        logger_1.Logger.info("ionic-app-scripts-tiny " + helpers_1.getAppScriptsVersion(), 'cyan');
     }
     catch (e) { }
     try {

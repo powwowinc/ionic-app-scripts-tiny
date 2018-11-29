@@ -1,5 +1,5 @@
 {
-  "name": "@ionic/app-scripts",
+  "name": "@ionic/app-scripts-tiny",
   "version": "3.2.1",
   "description": "Scripts for Ionic Projects",
   "homepage": "https://ionicframework.com/",
@@ -14,7 +14,7 @@
     "README.md"
   ],
   "bin": {
-    "ionic-app-scripts": "./bin/ionic-app-scripts.js"
+    "ionic-app-scripts-tiny": "bin/ionic-app-scripts-tiny.js"
   },
   "scripts": {
     "build": "npm run clean && tsc && npm run sass",
@@ -97,7 +97,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/ionic-team/ionic-app-scripts.git"
+    "url": "git+https://github.com/powwowinc/ionic-app-scripts-tiny.git"
   },
   "bugs": {
     "url": "https://github.com/ionic-team/ionic-app-scripts/issues"
