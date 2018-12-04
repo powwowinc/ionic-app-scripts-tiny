@@ -42,7 +42,7 @@ var config_1 = require("./util/config");
 var helpers_1 = require("./util/helpers");
 function run(task) {
     try {
-        logger_1.Logger.info("ionic-app-scripts " + helpers_1.getAppScriptsVersion(), 'cyan');
+        logger_1.Logger.info("ionic-app-scripts-tiny " + helpers_1.getAppScriptsVersion(), 'cyan');
     }
     catch (e) { }
     try {
