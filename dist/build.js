@@ -39,10 +39,7 @@ var util_1 = require("./build/util");
 var bundle_1 = require("./bundle");
 var copy_1 = require("./copy");
 var deep_linking_1 = require("./deep-linking");
-var lint_1 = require("./lint");
 var logger_1 = require("./logger/logger");
-var minify_1 = require("./minify");
-var ngc_1 = require("./ngc");
 var postprocess_1 = require("./postprocess");
 var preprocess_1 = require("./preprocess");
 var sass_1 = require("./sass");
@@ -95,15 +92,17 @@ function buildWorker(context) {
 }
 function buildProject(context) {
     buildId++;
-    var copyPromise = copy_1.copy(context);
-    return util_1.scanSrcTsFiles(context)
+    return copy_1.copy(context)
+        .then(function () {
+        return util_1.scanSrcTsFiles(context);
+    })
         .then(function () {
         if (helpers_1.getBooleanPropertyValue(Constants.ENV_PARSE_DEEPLINKS)) {
             return deep_linking_1.deepLinking(context);
         }
     })
         .then(function () {
-        return (context.runAot) ? ngc_1.ngc(context) : transpile_1.transpile(context);
+        return transpile_1.transpile(context);
     })
         .then(function () {
         return preprocess_1.preprocess(context);
@@ -112,29 +111,10 @@ function buildProject(context) {
         return bundle_1.bundle(context);
     })
         .then(function () {
-        var minPromise = (context.runMinifyJs) ? minify_1.minifyJs(context) : Promise.resolve();
-        var sassPromise = sass_1.sass(context)
-            .then(function () {
-            return (context.runMinifyCss) ? minify_1.minifyCss(context) : Promise.resolve();
-        });
-        return Promise.all([
-            minPromise,
-            sassPromise,
-            copyPromise
-        ]);
+        return sass_1.sass(context);
     })
         .then(function () {
         return postprocess_1.postprocess(context);
-    })
-        .then(function () {
-        if (helpers_1.getBooleanPropertyValue(Constants.ENV_ENABLE_LINT)) {
-            // kick off the tslint after everything else
-            // nothing needs to wait on its completion unless bailing on lint error is enabled
-            var result = lint_1.lint(context, null, false);
-            if (helpers_1.getBooleanPropertyValue(Constants.ENV_BAIL_ON_LINT_ERROR)) {
-                return result;
-            }
-        }
     })
         .catch(function (err) {
         throw new errors_1.BuildError(err);
@@ -166,23 +146,6 @@ function buildUpdate(changedFiles, context) {
                     // and the webpack only needs to livereload the css
                     // but does not need to do a full page refresh
                     events_1.emit(events_1.EventType.FileChange, resolveValue.changedFiles);
-                }
-                var requiresLintUpdate = false;
-                for (var _i = 0, changedFiles_1 = changedFiles; _i < changedFiles_1.length; _i++) {
-                    var changedFile = changedFiles_1[_i];
-                    if (changedFile.ext === '.ts') {
-                        if (changedFile.event === 'change' || changedFile.event === 'add') {
-                            requiresLintUpdate = true;
-                            break;
-                        }
-                    }
-                }
-                if (requiresLintUpdate) {
-                    // a ts file changed, so let's lint it too, however
-                    // this task should run as an after thought
-                    if (helpers_1.getBooleanPropertyValue(Constants.ENV_ENABLE_LINT)) {
-                        lint_1.lintUpdate(changedFiles, context, false);
-                    }
                 }
                 logger.finish('green', true);
                 logger_1.Logger.newLine();
@@ -317,8 +280,8 @@ function loadFiles(changedFiles, context) {
             });
         }
     };
-    for (var _i = 0, changedFiles_2 = changedFiles; _i < changedFiles_2.length; _i++) {
-        var changedFile = changedFiles_2[_i];
+    for (var _i = 0, changedFiles_1 = changedFiles; _i < changedFiles_1.length; _i++) {
+        var changedFile = changedFiles_1[_i];
         _loop_1(changedFile);
     }
     return Promise.all(promises);

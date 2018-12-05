@@ -6,8 +6,8 @@ import { ensureDirSync, readdirSync, writeFile } from 'fs-extra';
 import { fillConfigDefaults, getUserConfigFile, replacePathVars } from './util/config';
 import { Logger } from './logger/logger';
 import { runSassDiagnostics } from './logger/logger-sass';
-import { printDiagnostics, clearDiagnostics, DiagnosticsType } from './logger/logger-diagnostics';
-import { SassError, render as nodeSassRender, Result } from 'node-sass';
+import { clearDiagnostics, DiagnosticsType, printDiagnostics } from './logger/logger-diagnostics';
+import { render as nodeSassRender, Result, SassError } from 'node-sass';
 import * as postcss from 'postcss';
 import * as autoprefixer from 'autoprefixer';
 

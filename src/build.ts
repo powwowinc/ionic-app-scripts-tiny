@@ -2,10 +2,7 @@ import { readVersionOfDependencies, scanSrcTsFiles, validateRequiredFilesExist, 
 import { bundle, bundleUpdate } from './bundle';
 import { copy } from './copy';
 import { deepLinking, deepLinkingUpdate } from './deep-linking';
-import { lint, lintUpdate } from './lint';
 import { Logger } from './logger/logger';
-import { minifyCss, minifyJs } from './minify';
-import { ngc } from './ngc';
 import { postprocess } from './postprocess';
 import { preprocess, preprocessUpdate } from './preprocess';
 import { sass, sassUpdate } from './sass';
@@ -46,16 +43,17 @@ async function buildWorker(context: BuildContext) {
 function buildProject(context: BuildContext) {
   buildId++;
 
-  const copyPromise = copy(context);
-
-  return scanSrcTsFiles(context)
+  return copy(context)
+    .then(() => {
+      return scanSrcTsFiles(context)
+    })
     .then(() => {
       if (getBooleanPropertyValue(Constants.ENV_PARSE_DEEPLINKS)) {
         return deepLinking(context);
       }
     })
     .then(() => {
-      return (context.runAot) ? ngc(context) : transpile(context);
+      return transpile(context);
     })
     .then(() => {
       return preprocess(context);
@@ -64,30 +62,10 @@ function buildProject(context: BuildContext) {
       return bundle(context);
     })
     .then(() => {
-      const minPromise = (context.runMinifyJs) ? minifyJs(context) : Promise.resolve();
-      const sassPromise = sass(context)
-        .then(() => {
-          return (context.runMinifyCss) ? minifyCss(context) : Promise.resolve();
-        });
-
-      return Promise.all([
-        minPromise,
-        sassPromise,
-        copyPromise
-      ]);
+      return sass(context);
     })
     .then(() => {
       return postprocess(context);
-    })
-    .then(() => {
-      if (getBooleanPropertyValue(Constants.ENV_ENABLE_LINT)) {
-        // kick off the tslint after everything else
-        // nothing needs to wait on its completion unless bailing on lint error is enabled
-        const result = lint(context, null, false);
-        if (getBooleanPropertyValue(Constants.ENV_BAIL_ON_LINT_ERROR)) {
-          return result;
-        }
-      }
     })
     .catch(err => {
       throw new BuildError(err);
@@ -125,23 +103,6 @@ export function buildUpdate(changedFiles: ChangedFile[], context: BuildContext) 
           // and the webpack only needs to livereload the css
           // but does not need to do a full page refresh
           emit(EventType.FileChange, resolveValue.changedFiles);
-        }
-
-        let requiresLintUpdate = false;
-        for (const changedFile of changedFiles) {
-          if (changedFile.ext === '.ts') {
-            if (changedFile.event === 'change' || changedFile.event === 'add') {
-              requiresLintUpdate = true;
-              break;
-            }
-          }
-        }
-        if (requiresLintUpdate) {
-          // a ts file changed, so let's lint it too, however
-          // this task should run as an after thought
-          if (getBooleanPropertyValue(Constants.ENV_ENABLE_LINT)) {
-            lintUpdate(changedFiles, context, false);
-          }
         }
 
         logger.finish('green', true);

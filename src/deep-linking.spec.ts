@@ -2,8 +2,7 @@ import { join } from 'path';
 
 import * as deepLinking from './deep-linking';
 import * as deeplinkUtils from './deep-linking/util';
-import * as Constants from './util/constants';
-import { BuildState, ChangedFile, DeepLinkConfigEntry } from './util/interfaces';
+import { DeepLinkConfigEntry } from './util/interfaces';
 import { FileCache } from './util/file-cache';
 import * as helpers from './util/helpers';
 

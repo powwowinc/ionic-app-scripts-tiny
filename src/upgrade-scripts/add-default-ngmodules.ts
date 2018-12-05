@@ -7,7 +7,7 @@ import * as Constants from '../util/constants';
 import { FileCache } from '../util/file-cache';
 import { globAll, GlobResult } from '../util/glob-util';
 import { changeExtension, getStringPropertyValue, readFileAsync } from '../util/helpers';
-import { BuildContext, File } from '../util/interfaces';
+import { BuildContext } from '../util/interfaces';
 
 import { getTypescriptSourceFile } from '../util/typescript-utils';
 

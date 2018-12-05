@@ -1,6 +1,6 @@
 import { extname } from 'path';
 import { FileCache } from '../util/file-cache';
-import { on, EventType } from '../util/events';
+import { EventType, on } from '../util/events';
 import { Logger } from '../logger/logger';
 
 export class WatchMemorySystem {

@@ -1,17 +1,11 @@
 import { extname } from 'path';
-
-import { scanSrcTsFiles } from './build/util';
 import { Logger } from './logger/logger';
 import * as Constants from './util/constants';
 import { BuildError } from './util/errors';
-import { getParsedDeepLinkConfig, getStringPropertyValue, readAndCacheFile, setParsedDeepLinkConfig } from './util/helpers';
+import { getStringPropertyValue, readAndCacheFile, setParsedDeepLinkConfig } from './util/helpers';
 import { BuildContext, BuildState, ChangedFile, DeepLinkConfigEntry } from './util/interfaces';
 
-import {
-  convertDeepLinkConfigEntriesToString,
-  getDeepLinkData,
-  hasExistingDeepLinkConfig
-} from './deep-linking/util';
+import { convertDeepLinkConfigEntriesToString, getDeepLinkData, hasExistingDeepLinkConfig } from './deep-linking/util';
 
 export let existingDeepLinkConfigString: string = null;
 

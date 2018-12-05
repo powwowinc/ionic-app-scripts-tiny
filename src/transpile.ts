@@ -1,4 +1,4 @@
-import { fork, ChildProcess } from 'child_process';
+import { ChildProcess, fork } from 'child_process';
 import { EventEmitter } from 'events';
 import { readFileSync } from 'fs';
 import * as path from 'path';
@@ -7,29 +7,17 @@ import * as ts from 'typescript';
 
 import { getInMemoryCompilerHostInstance } from './aot/compiler-host-factory';
 import { buildJsSourceMaps } from './bundle';
-import {
-  getInjectDeepLinkConfigTypescriptTransform,
-  purgeDeepLinkDecoratorTSTransform }
-from './deep-linking/util';
-
-import {
-  convertDeepLinkConfigEntriesToString,
-  getUpdatedAppNgModuleContentWithDeepLinkConfig,
-  filterTypescriptFilesForDeepLinks,
-  hasExistingDeepLinkConfig,
-  isDeepLinkingFile,
-  purgeDeepLinkDecorator
-} from './deep-linking/util';
+import { convertDeepLinkConfigEntriesToString, filterTypescriptFilesForDeepLinks, getUpdatedAppNgModuleContentWithDeepLinkConfig, hasExistingDeepLinkConfig, isDeepLinkingFile, purgeDeepLinkDecorator } from './deep-linking/util';
 
 import { Logger } from './logger/logger';
-import { printDiagnostics, clearDiagnostics, DiagnosticsType } from './logger/logger-diagnostics';
+import { clearDiagnostics, DiagnosticsType, printDiagnostics } from './logger/logger-diagnostics';
 import { runTypeScriptDiagnostics } from './logger/logger-typescript';
 import { inlineTemplate } from './template';
 import * as Constants from './util/constants';
 import { BuildError } from './util/errors';
 import { FileCache } from './util/file-cache';
 import { changeExtension, getBooleanPropertyValue, getParsedDeepLinkConfig, getStringPropertyValue } from './util/helpers';
-import { BuildContext, BuildState, ChangedFile, File } from './util/interfaces';
+import { BuildContext, BuildState, ChangedFile } from './util/interfaces';
 
 export function transpile(context: BuildContext) {
 

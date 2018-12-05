@@ -3,7 +3,7 @@ import { extname, join, normalize, resolve as pathResolve } from 'path';
 import * as chokidar from 'chokidar';
 
 import * as buildTask from './build';
-import { copyUpdate as copyUpdateHandler} from './copy';
+import { copyUpdate as copyUpdateHandler } from './copy';
 import { Logger } from './logger/logger';
 import { canRunTranspileUpdate } from './transpile';
 import { fillConfigDefaults, getUserConfigFile, replacePathVars } from './util/config';

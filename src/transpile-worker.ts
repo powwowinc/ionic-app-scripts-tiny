@@ -1,5 +1,5 @@
 import { BuildContext } from './util/interfaces';
-import { transpileWorker, TranspileWorkerMessage, TranspileWorkerConfig } from './transpile';
+import { transpileWorker, TranspileWorkerConfig, TranspileWorkerMessage } from './transpile';
 
 
 const context: BuildContext = {};

@@ -9,16 +9,6 @@ function getTypescriptSourceFile(filePath, fileContent, languageVersion, setPare
     return typescript_1.createSourceFile(filePath, fileContent, languageVersion, setParentNodes);
 }
 exports.getTypescriptSourceFile = getTypescriptSourceFile;
-function removeDecorators(fileName, source) {
-    var sourceFile = typescript_1.createSourceFile(fileName, source, typescript_1.ScriptTarget.Latest);
-    var decorators = findNodes(sourceFile, sourceFile, typescript_1.SyntaxKind.Decorator, true);
-    decorators.sort(function (a, b) { return b.pos - a.pos; });
-    decorators.forEach(function (d) {
-        source = source.slice(0, d.pos) + source.slice(d.end);
-    });
-    return source;
-}
-exports.removeDecorators = removeDecorators;
 function findNodes(sourceFile, node, kind, keepGoing) {
     if (keepGoing === void 0) { keepGoing = false; }
     if (node.kind === kind && !keepGoing) {
@@ -37,14 +27,6 @@ function replaceNode(filePath, fileContent, node, replacement) {
     return modifiedContent;
 }
 exports.replaceNode = replaceNode;
-function removeNode(filePath, fileContent, node) {
-    var sourceFile = getTypescriptSourceFile(filePath, fileContent, typescript_1.ScriptTarget.Latest, false);
-    var startIndex = node.getStart(sourceFile);
-    var endIndex = node.getEnd();
-    var modifiedContent = helpers_1.rangeReplace(fileContent, startIndex, endIndex, '');
-    return modifiedContent;
-}
-exports.removeNode = removeNode;
 function getNodeStringContent(sourceFile, node) {
     return sourceFile.getFullText().substring(node.getStart(sourceFile), node.getEnd());
 }
@@ -57,11 +39,6 @@ function appendEmpty(source, position, toAppend) {
     return helpers_1.stringSplice(source, position, 0, toAppend);
 }
 exports.appendEmpty = appendEmpty;
-function appendBefore(filePath, fileContent, node, toAppend) {
-    var sourceFile = getTypescriptSourceFile(filePath, fileContent, typescript_1.ScriptTarget.Latest, false);
-    return helpers_1.stringSplice(fileContent, node.getStart(sourceFile), 0, toAppend);
-}
-exports.appendBefore = appendBefore;
 function insertNamedImportIfNeeded(filePath, fileContent, namedImport, fromModule) {
     var sourceFile = getTypescriptSourceFile(filePath, fileContent, typescript_1.ScriptTarget.Latest, false);
     var allImports = findNodes(sourceFile, sourceFile, typescript_1.SyntaxKind.ImportDeclaration);
@@ -100,45 +77,6 @@ function insertNamedImportIfNeeded(filePath, fileContent, namedImport, fromModul
     return fileContent;
 }
 exports.insertNamedImportIfNeeded = insertNamedImportIfNeeded;
-function replaceNamedImport(filePath, fileContent, namedImportOriginal, namedImportReplacement) {
-    var sourceFile = getTypescriptSourceFile(filePath, fileContent, typescript_1.ScriptTarget.Latest, false);
-    var allImports = findNodes(sourceFile, sourceFile, typescript_1.SyntaxKind.ImportDeclaration);
-    var modifiedContent = fileContent;
-    allImports.filter(function (node) {
-        if (node.importClause && node.importClause.namedBindings) {
-            return node.importClause.namedBindings.kind === typescript_1.SyntaxKind.NamedImports;
-        }
-    }).map(function (importDeclaration) {
-        return importDeclaration.importClause.namedBindings;
-    }).forEach(function (namedImport) {
-        return namedImport.elements.forEach(function (element) {
-            if (element.name.text === namedImportOriginal) {
-                modifiedContent = replaceNode(filePath, modifiedContent, element, namedImportReplacement);
-            }
-        });
-    });
-    return modifiedContent;
-}
-exports.replaceNamedImport = replaceNamedImport;
-function replaceImportModuleSpecifier(filePath, fileContent, moduleSpecifierOriginal, moduleSpecifierReplacement) {
-    var sourceFile = getTypescriptSourceFile(filePath, fileContent, typescript_1.ScriptTarget.Latest, false);
-    var allImports = findNodes(sourceFile, sourceFile, typescript_1.SyntaxKind.ImportDeclaration);
-    var modifiedContent = fileContent;
-    allImports.forEach(function (node) {
-        if (node.moduleSpecifier.kind === typescript_1.SyntaxKind.StringLiteral && node.moduleSpecifier.text === moduleSpecifierOriginal) {
-            modifiedContent = replaceNode(filePath, modifiedContent, node.moduleSpecifier, "'" + moduleSpecifierReplacement + "'");
-        }
-    });
-    return modifiedContent;
-}
-exports.replaceImportModuleSpecifier = replaceImportModuleSpecifier;
-function checkIfFunctionIsCalled(filePath, fileContent, functionName) {
-    var sourceFile = getTypescriptSourceFile(filePath, fileContent, typescript_1.ScriptTarget.Latest, false);
-    var allCalls = findNodes(sourceFile, sourceFile, typescript_1.SyntaxKind.CallExpression, true);
-    var functionCallList = allCalls.filter(function (call) { return call.expression && call.expression.kind === typescript_1.SyntaxKind.Identifier && call.expression.text === functionName; });
-    return functionCallList.length > 0;
-}
-exports.checkIfFunctionIsCalled = checkIfFunctionIsCalled;
 function getClassDeclarations(sourceFile) {
     return findNodes(sourceFile, sourceFile, typescript_1.SyntaxKind.ClassDeclaration, true);
 }

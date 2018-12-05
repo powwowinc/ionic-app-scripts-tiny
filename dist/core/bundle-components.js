@@ -4,10 +4,7 @@ var logger_1 = require("../logger/logger");
 var fs = require("fs");
 var path = require("path");
 var nodeSass = require("node-sass");
-var rollup = require("rollup");
 var typescript = require("typescript");
-var uglify = require("uglify-es");
-var cleanCss = require("clean-css");
 function bundleCoreComponents(context) {
     var compiler = getCoreCompiler(context);
     if (!compiler) {
@@ -19,13 +16,10 @@ function bundleCoreComponents(context) {
         destDir: context.buildDir,
         attrCase: 'lower',
         packages: {
-            cleanCss: cleanCss,
             fs: fs,
             path: path,
             nodeSass: nodeSass,
-            rollup: rollup,
-            typescript: typescript,
-            uglify: uglify
+            typescript: typescript
         },
         watch: context.isWatch
     };

@@ -1,7 +1,7 @@
 import { join } from 'path';
 import * as Constants from '../util/constants';
-import { changeExtension, getParsedDeepLinkConfig, getStringPropertyValue } from '../util/helpers';
-import { BuildContext , DeepLinkConfigEntry} from '../util/interfaces';
+import { getParsedDeepLinkConfig, getStringPropertyValue } from '../util/helpers';
+import { BuildContext, DeepLinkConfigEntry } from '../util/interfaces';
 import { Logger } from '../logger/logger';
 import { getInstance } from '../util/hybrid-file-system-factory';
 import { WatchMemorySystem } from './watch-memory-system';

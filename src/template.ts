@@ -7,7 +7,6 @@ import { changeExtension, getStringPropertyValue } from './util/helpers';
 import { Logger } from './logger/logger';
 
 
-
 export function templateUpdate(changedFiles: ChangedFile[], context: BuildContext) {
   try {
     const changedTemplates = changedFiles.filter(changedFile => changedFile.ext === '.html');

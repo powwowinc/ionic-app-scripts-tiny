@@ -3,8 +3,7 @@ import { join, resolve } from 'path';
 import * as mockFs from 'mock-fs';
 
 import { Logger } from './logger/logger';
-import { inlineTemplate, replaceTemplateUrl, updateTemplate } from './template';
-import { getTemplateMatch, getTemplateFormat, replaceExistingJsTemplate } from './template';
+import { getTemplateFormat, getTemplateMatch, inlineTemplate, replaceExistingJsTemplate, replaceTemplateUrl, updateTemplate } from './template';
 
 
 describe('template', () => {

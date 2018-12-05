@@ -1,56 +1,13 @@
 import { basename, dirname, extname, relative, sep } from 'path';
 
-import {
-  ArrayLiteralExpression,
-  CallExpression,
-  ClassDeclaration,
-  createClassDeclaration,
-  createIdentifier,
-  createNamedImports,
-  Decorator,
-  Expression,
-  Identifier,
-  ImportDeclaration,
-  ImportSpecifier,
-  NamedImports,
-  Node,
-  NodeArray,
-  ObjectLiteralExpression,
-  PropertyAccessExpression,
-  PropertyAssignment,
-  SourceFile,
-  StringLiteral,
-  SyntaxKind,
-  TransformationContext,
-  TransformerFactory,
-  updateCall,
-  updateClassDeclaration,
-  updateImportClause,
-  updateImportDeclaration,
-  updateSourceFile,
-  visitEachChild,
-  VisitResult
-} from 'typescript';
+import { ArrayLiteralExpression, CallExpression, ClassDeclaration, createIdentifier, createNamedImports, Decorator, Expression, Identifier, ImportDeclaration, ImportSpecifier, NamedImports, Node, ObjectLiteralExpression, PropertyAccessExpression, PropertyAssignment, SourceFile, StringLiteral, SyntaxKind, TransformationContext, TransformerFactory, updateCall, updateClassDeclaration, updateImportClause, updateImportDeclaration, visitEachChild, VisitResult } from 'typescript';
 
 import { Logger } from '../logger/logger';
 import * as Constants from '../util/constants';
 import { FileCache } from '../util/file-cache';
 import { changeExtension, getParsedDeepLinkConfig, getStringPropertyValue, replaceAll, toUnixPath } from '../util/helpers';
 import { BuildContext, ChangedFile, DeepLinkConfigEntry, DeepLinkDecoratorAndClass, DeepLinkPathInfo, File } from '../util/interfaces';
-import {
-  NG_MODULE_DECORATOR_TEXT,
-  appendAfter,
-  findNodes,
-  getClassDeclarations,
-  getNgModuleClassName,
-  getNgModuleDecorator,
-  getNgModuleObjectLiteralArg,
-  getTypescriptSourceFile,
-  getNodeStringContent,
-  replaceNode,
-} from '../util/typescript-utils';
-
-import { transpileTsString } from '../transpile';
+import { appendAfter, findNodes, getClassDeclarations, getNgModuleClassName, getNgModuleDecorator, getNgModuleObjectLiteralArg, getNodeStringContent, getTypescriptSourceFile, NG_MODULE_DECORATOR_TEXT, replaceNode, } from '../util/typescript-utils';
 
 export function getDeepLinkData(appNgModuleFilePath: string, fileCache: FileCache, isAot: boolean): Map<string, DeepLinkConfigEntry> {
   // we only care about analyzing a subset of typescript files, so do that for efficiency

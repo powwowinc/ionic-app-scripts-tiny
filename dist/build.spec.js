@@ -8,9 +8,6 @@ var bundle = require("./bundle");
 var copy = require("./copy");
 var clean = require("./clean");
 var deepLinking = require("./deep-linking");
-var lint = require("./lint");
-var minify = require("./minify");
-var ngc = require("./ngc");
 var postprocess = require("./postprocess");
 var preprocess = require("./preprocess");
 var sass = require("./sass");
@@ -33,10 +30,6 @@ describe('build', function () {
         spyOn(bundle, bundle.bundle.name).and.returnValue(Promise.resolve());
         spyOn(copy, copy.copy.name).and.returnValue(Promise.resolve());
         spyOn(deepLinking, deepLinking.deepLinking.name).and.returnValue(Promise.resolve());
-        spyOn(minify, minify.minifyCss.name).and.returnValue(Promise.resolve());
-        spyOn(minify, minify.minifyJs.name).and.returnValue(Promise.resolve());
-        spyOn(lint, lint.lint.name).and.returnValue(Promise.resolve());
-        spyOn(ngc, ngc.ngc.name).and.returnValue(Promise.resolve());
         spyOn(postprocess, postprocess.postprocess.name).and.returnValue(Promise.resolve());
         spyOn(preprocess, preprocess.preprocess.name).and.returnValue(Promise.resolve());
         spyOn(sass, sass.sass.name).and.returnValue(Promise.resolve());
@@ -46,8 +39,6 @@ describe('build', function () {
         var context = {
             isProd: true,
             optimizeJs: true,
-            runMinifyJs: true,
-            runMinifyCss: true,
             runAot: true
         };
         var getBooleanPropertyValueSpy = spyOn(helpers, helpers.getBooleanPropertyValue.name).and.returnValue(true);
@@ -55,13 +46,8 @@ describe('build', function () {
             expect(buildUtils.scanSrcTsFiles).toHaveBeenCalled();
             expect(copy.copy).toHaveBeenCalled();
             expect(deepLinking.deepLinking).toHaveBeenCalled();
-            expect(ngc.ngc).toHaveBeenCalled();
             expect(bundle.bundle).toHaveBeenCalled();
-            expect(minify.minifyJs).toHaveBeenCalled();
             expect(sass.sass).toHaveBeenCalled();
-            expect(minify.minifyCss).toHaveBeenCalled();
-            expect(lint.lint).toHaveBeenCalled();
-            expect(getBooleanPropertyValueSpy.calls.all()[1].args[0]).toEqual(Constants.ENV_ENABLE_LINT);
             expect(transpile.transpile).not.toHaveBeenCalled();
         });
     });
@@ -81,37 +67,8 @@ describe('build', function () {
             expect(transpile.transpile).toHaveBeenCalled();
             expect(bundle.bundle).toHaveBeenCalled();
             expect(sass.sass).toHaveBeenCalled();
-            expect(lint.lint).toHaveBeenCalled();
-            expect(getBooleanPropertyValueSpy.calls.all()[1].args[0]).toEqual(Constants.ENV_ENABLE_LINT);
             expect(postprocess.postprocess).toHaveBeenCalled();
             expect(preprocess.preprocess).toHaveBeenCalled();
-            expect(ngc.ngc).not.toHaveBeenCalled();
-            expect(minify.minifyJs).not.toHaveBeenCalled();
-            expect(minify.minifyCss).not.toHaveBeenCalled();
-        });
-    });
-    it('should skip lint', function () {
-        var context = {
-            isProd: false,
-            optimizeJs: false,
-            runMinifyJs: false,
-            runMinifyCss: false,
-            runAot: false
-        };
-        var getBooleanPropertyValueSpy = spyOn(helpers, helpers.getBooleanPropertyValue.name).and.returnValue(false);
-        return build.build(context).then(function () {
-            expect(buildUtils.scanSrcTsFiles).toHaveBeenCalled();
-            expect(copy.copy).toHaveBeenCalled();
-            expect(transpile.transpile).toHaveBeenCalled();
-            expect(bundle.bundle).toHaveBeenCalled();
-            expect(sass.sass).toHaveBeenCalled();
-            expect(lint.lint).not.toHaveBeenCalled();
-            expect(getBooleanPropertyValueSpy.calls.all()[1].args[0]).toEqual(Constants.ENV_ENABLE_LINT);
-            expect(postprocess.postprocess).toHaveBeenCalled();
-            expect(preprocess.preprocess).toHaveBeenCalled();
-            expect(ngc.ngc).not.toHaveBeenCalled();
-            expect(minify.minifyJs).not.toHaveBeenCalled();
-            expect(minify.minifyCss).not.toHaveBeenCalled();
         });
     });
 });

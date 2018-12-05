@@ -1,6 +1,5 @@
 import { BuildContext, ChangedFile } from './util/interfaces';
 import { BuildError, IgnorableError } from './util/errors';
-import * as Constants from './util/constants';
 import { webpack, webpackUpdate, getWebpackConfig, getOutputDest as webpackGetOutputDest } from './webpack';
 
 

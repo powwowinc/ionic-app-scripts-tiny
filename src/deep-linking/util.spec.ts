@@ -3,12 +3,11 @@ import { join } from 'path';
 import * as ts from 'typescript';
 
 import * as util from './util';
-import * as transpile from '../transpile';
 
 import * as Constants from '../util/constants';
 import { FileCache } from '../util/file-cache';
 import *  as helpers from '../util/helpers';
-import { BuildContext, ChangedFile, DeepLinkConfigEntry } from '../util/interfaces';
+import { ChangedFile, DeepLinkConfigEntry } from '../util/interfaces';
 import * as tsUtils from '../util/typescript-utils';
 
 describe('util', () => {

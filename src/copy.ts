@@ -7,7 +7,7 @@ import { emit, EventType } from './util/events';
 import { generateGlobTasks, globAll, GlobObject, GlobResult } from './util/glob-util';
 import { copyFileAsync, getBooleanPropertyValue, rimRafAsync, unlinkAsync } from './util/helpers';
 import { BuildContext, ChangedFile, TaskInfo } from './util/interfaces';
-import { Watcher, copyUpdate as watchCopyUpdate } from './watch';
+import { copyUpdate as watchCopyUpdate, Watcher } from './watch';
 
 const copyFilePathCache = new Map<string, CopyToFrom[]>();
 
@@ -274,13 +274,6 @@ export function copyConfigToWatchConfig(context: BuildContext): Watcher {
     },
     callback: watchCopyUpdate
   };
-}
-
-export interface CopySrcToDestResult {
-  success: boolean;
-  src: string;
-  dest: string;
-  errorMessage: string;
 }
 
 export const taskInfo: TaskInfo = {

@@ -4,7 +4,6 @@ var path_1 = require("path");
 var mockFs = require("mock-fs");
 var logger_1 = require("./logger/logger");
 var template_1 = require("./template");
-var template_2 = require("./template");
 describe('template', function () {
     describe('inlineTemplate', function () {
         it('should inline multiple external html files which are the same for multiple @Components in same .ts file', function () {
@@ -73,7 +72,7 @@ describe('template', function () {
                 },
             };
             mockFs(d);
-            var match = template_2.getTemplateMatch(d['path/to/dir']['some-file.ts']);
+            var match = template_1.getTemplateMatch(d['path/to/dir']['some-file.ts']);
             var expected = template_1.replaceTemplateUrl(match, 'path/to/dir/some-file.html', '<div>hello</div>');
             var results = template_1.updateTemplate('path/to/dir', match);
             expect(results).toEqual(expected);
@@ -88,7 +87,7 @@ describe('template', function () {
                 },
             };
             mockFs(d);
-            var match = template_2.getTemplateMatch(d['path/to/dir']['some-file.ts']);
+            var match = template_1.getTemplateMatch(d['path/to/dir']['some-file.ts']);
             var results = template_1.updateTemplate('path/to/dir', match);
             expect(results).toEqual(null);
             mockFs.restore();
@@ -99,7 +98,7 @@ describe('template', function () {
             var str = "\n        Component({\n          templateUrl: \"somepage.html\"})";
             var templateContent = "\n        <div>\t\n          this is \"multiline\" 'content'\n        </div>\r\n      ";
             var htmlFilePath = path_1.join(process.cwd(), 'full', 'path', 'to', 'somepage.html');
-            var match = template_2.getTemplateMatch(str);
+            var match = template_1.getTemplateMatch(str);
             var result = template_1.replaceTemplateUrl(match, htmlFilePath, templateContent);
             var expected = "Component({template:/*ion-inline-start:\"" + path_1.join(process.cwd(), 'full', 'path', 'to', 'somepage.html') + "\"*/'\\n        <div>\t\\n          this is \"multiline\" \\'content\\'\\n        </div>\\n\\n      '/*ion-inline-end:\"" + path_1.join(process.cwd(), 'full', 'path', 'to', 'somepage.html') + "\"*/})";
             expect(result).toEqual(expected);
@@ -109,7 +108,7 @@ describe('template', function () {
         it('should resolve the path', function () {
             var path = 'some/crazy/path/my.html';
             var resolvedPath = path_1.resolve(path);
-            var results = template_2.getTemplateFormat(path, 'filibuster');
+            var results = template_1.getTemplateFormat(path, 'filibuster');
             expect(path).not.toEqual(resolvedPath);
             expect(results).toEqual("template:/*ion-inline-start:\"" + resolvedPath + "\"*/'filibuster'/*ion-inline-end:\"" + resolvedPath + "\"*/");
         });
@@ -118,10 +117,10 @@ describe('template', function () {
         it('should replace already inlined template with new content', function () {
             var htmlFilePath = 'c:\\path/to\some/crazy:thing.html;';
             var oldContent = 'some old content';
-            var tmplate = template_2.getTemplateFormat(htmlFilePath, oldContent);
+            var tmplate = template_1.getTemplateFormat(htmlFilePath, oldContent);
             var bundleSourceText = "\n        @Component({\n          selector: 'yo-div',\n          /*blah*/" + tmplate + "/*derp*/\n        })\n        @Component({\n          selector: 'yo-div2',\n          /*222*/" + tmplate + "/*2222*/\n        })\n      ";
             var newContent = 'some new content';
-            var output = template_2.replaceExistingJsTemplate(bundleSourceText, newContent, htmlFilePath);
+            var output = template_1.replaceExistingJsTemplate(bundleSourceText, newContent, htmlFilePath);
             expect(output.indexOf(newContent)).toBeGreaterThan(-1);
             expect(output.indexOf(newContent)).toBeGreaterThan(-1);
         });
@@ -129,75 +128,75 @@ describe('template', function () {
     describe('COMPONENT_REGEX match', function () {
         it('should get Component with template url and selector above', function () {
             var str = "\n        Component({\n          selector: 'page-home',\n          templateUrl: 'home.html'\n        })\n      ";
-            var match = template_2.getTemplateMatch(str);
+            var match = template_1.getTemplateMatch(str);
             expect(match.templateUrl).toEqual('home.html');
         });
         it('should get Component with template url and selector below', function () {
             var str = "\n        Component({\n          templateUrl: 'home.html',\n          selector: 'page-home\n        })\n      ";
-            var match = template_2.getTemplateMatch(str);
+            var match = template_1.getTemplateMatch(str);
             expect(match.templateUrl).toEqual('home.html');
         });
         it('should get Component with template url, spaces, tabs and new lines', function () {
             var str = "\t\n\r\n        Component(\n          {\n\n            templateUrl :\n              \t\n\r\"c:\\somewindowspath.ts\"\n\n          }\n        )\n      ";
-            var match = template_2.getTemplateMatch(str);
+            var match = template_1.getTemplateMatch(str);
             expect(match.templateUrl).toEqual('c:\\some\windows\path.ts');
         });
         it('should get Component with template url and spaces', function () {
             var str = '  Component  (  {  templateUrl  :  `  hi  `  }  )  ';
-            var match = template_2.getTemplateMatch(str);
+            var match = template_1.getTemplateMatch(str);
             expect(match.component).toEqual('Component  (  {  templateUrl  :  `  hi  `  }  )');
             expect(match.templateProperty).toEqual('  templateUrl  :  `  hi  `');
             expect(match.templateUrl).toEqual('hi');
         });
         it('should get Component with template url and back-ticks', function () {
             var str = 'Component({templateUrl:`hi`})';
-            var match = template_2.getTemplateMatch(str);
+            var match = template_1.getTemplateMatch(str);
             expect(match.component).toEqual('Component({templateUrl:`hi`})');
             expect(match.templateProperty).toEqual('templateUrl:`hi`');
             expect(match.templateUrl).toEqual('hi');
         });
         it('should get Component with template url and double quotes', function () {
             var str = 'Component({templateUrl:"hi"})';
-            var match = template_2.getTemplateMatch(str);
+            var match = template_1.getTemplateMatch(str);
             expect(match.component).toEqual('Component({templateUrl:"hi"})');
             expect(match.templateProperty).toEqual('templateUrl:"hi"');
             expect(match.templateUrl).toEqual('hi');
         });
         it('should get Component with template url and single quotes', function () {
             var str = 'Component({templateUrl:\'hi\'})';
-            var match = template_2.getTemplateMatch(str);
+            var match = template_1.getTemplateMatch(str);
             expect(match.component).toEqual('Component({templateUrl:\'hi\'})');
             expect(match.templateProperty).toEqual('templateUrl:\'hi\'');
             expect(match.templateUrl).toEqual('hi');
         });
         it('should get null for Component without string for templateUrl', function () {
             var str = 'Component({templateUrl:someVar})';
-            var match = template_2.getTemplateMatch(str);
+            var match = template_1.getTemplateMatch(str);
             expect(match).toEqual(null);
         });
         it('should get null for Component without templateUrl', function () {
             var str = 'Component({template:"hi"})';
-            var match = template_2.getTemplateMatch(str);
+            var match = template_1.getTemplateMatch(str);
             expect(match).toEqual(null);
         });
         it('should get null for Component without brackets', function () {
             var str = 'Component()';
-            var match = template_2.getTemplateMatch(str);
+            var match = template_1.getTemplateMatch(str);
             expect(match).toEqual(null);
         });
         it('should get null for Component without parentheses', function () {
             var str = 'Component';
-            var match = template_2.getTemplateMatch(str);
+            var match = template_1.getTemplateMatch(str);
             expect(match).toEqual(null);
         });
         it('should get null for Component({})', function () {
             var str = 'Component';
-            var match = template_2.getTemplateMatch(str);
+            var match = template_1.getTemplateMatch(str);
             expect(match).toEqual(null);
         });
         it('should get null for no Component', function () {
             var str = 'whatever';
-            var match = template_2.getTemplateMatch(str);
+            var match = template_1.getTemplateMatch(str);
             expect(match).toEqual(null);
         });
     });

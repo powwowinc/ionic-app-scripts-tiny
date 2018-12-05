@@ -7,7 +7,6 @@ var Constants = require("./util/constants");
 var helpers_1 = require("./util/helpers");
 var inject_scripts_1 = require("./core/inject-scripts");
 var source_maps_1 = require("./util/source-maps");
-var remove_unused_fonts_1 = require("./optimization/remove-unused-fonts");
 function postprocess(context) {
     var logger = new logger_1.Logger("postprocess");
     return postprocessWorker(context).then(function () {
@@ -24,9 +23,6 @@ function postprocessWorker(context) {
     promises.push(inject_scripts_1.updateIndexHtml(context));
     if (helpers_1.getBooleanPropertyValue(Constants.ENV_AOT_WRITE_TO_DISK)) {
         promises.push(writeFilesToDisk(context));
-    }
-    if (context.optimizeJs && helpers_1.getBooleanPropertyValue(Constants.ENV_PURGE_UNUSED_FONTS)) {
-        promises.push(remove_unused_fonts_1.removeUnusedFonts(context));
     }
     return Promise.all(promises);
 }

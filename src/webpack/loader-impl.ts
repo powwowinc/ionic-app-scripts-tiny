@@ -1,5 +1,5 @@
 import { normalize, resolve } from 'path';
-import { changeExtension, getContext, readAndCacheFile} from '../util/helpers';
+import { changeExtension, getContext, readAndCacheFile } from '../util/helpers';
 import { Logger } from '../logger/logger';
 import { FileCache } from '../util/file-cache';
 

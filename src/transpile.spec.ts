@@ -1,7 +1,6 @@
 import * as transpile from './transpile';
 
 import { FileCache } from './util/file-cache';
-import { BuildContext } from './util/interfaces';
 
 describe('transpile', () => {
   describe('resetSourceFiles', () => {
