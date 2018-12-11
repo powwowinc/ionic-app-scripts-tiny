@@ -27,7 +27,7 @@
     "github-release": "node ./scripts/create-github-release.js",
     "lint": "tslint -c ./tslint.json --project ./tsconfig.json --type-check -t stylish",
     "nightly": "npm run build && node ./scripts/publish-nightly.js",
-    "test": "jest",
+    "test": "jest --coverage",
     "watch": "npm run clean && tsc --watch & npm run sass-watch"
   },
   "main": "dist/index.js",
