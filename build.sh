@@ -27,9 +27,10 @@ then
 fi
 
 echo installing
-rm -rf package-lock.json shrinkwrap.json node_modules
+rm -rf package-lock.json npm-shrinkwrap.json node_modules dist
 ${NPM} install
+${NPM} run build
 
 echo testing
-${NPM} run-script build-and-test
+${NPM} run test
 
