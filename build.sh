@@ -27,6 +27,7 @@ then
 fi
 
 echo installing
+rm -rf package-lock.json shrinkwrap.json node_modules
 ${NPM} install
 
 echo testing
