@@ -35,22 +35,6 @@ describe('build', function () {
         spyOn(sass, sass.sass.name).and.returnValue(Promise.resolve());
         spyOn(transpile, transpile.transpile.name).and.returnValue(Promise.resolve());
     });
-    it('should do a prod build', function () {
-        var context = {
-            isProd: true,
-            optimizeJs: true,
-            runAot: true
-        };
-        var getBooleanPropertyValueSpy = spyOn(helpers, helpers.getBooleanPropertyValue.name).and.returnValue(true);
-        return build.build(context).then(function () {
-            expect(buildUtils.scanSrcTsFiles).toHaveBeenCalled();
-            expect(copy.copy).toHaveBeenCalled();
-            expect(deepLinking.deepLinking).toHaveBeenCalled();
-            expect(bundle.bundle).toHaveBeenCalled();
-            expect(sass.sass).toHaveBeenCalled();
-            expect(transpile.transpile).not.toHaveBeenCalled();
-        });
-    });
     it('should do a dev build', function () {
         var context = {
             isProd: false,

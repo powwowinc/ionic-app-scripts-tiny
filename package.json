@@ -18,7 +18,7 @@
   },
   "scripts": {
     "build": "npm run clean && tsc",
-    "build-and-test": "jest",
+    "build-and-test": "npm run build && npm run test",
     "changelog": "./node_modules/.bin/conventional-changelog -p angular -i CHANGELOG.md -s",
     "clean": "rimraf ./dist",
     "github-release": "node ./scripts/create-github-release.js",

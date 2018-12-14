@@ -30,6 +30,7 @@ function watch(context, configFile) {
     function buildDone() {
         return startWatchers(context, configFile).then(function () {
             logger.ready();
+            process.send({ event: 'READY' });
         });
     }
     return buildTask.build(context)

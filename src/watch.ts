@@ -38,6 +38,7 @@ export function watch(context?: BuildContext, configFile?: string) {
   function buildDone() {
     return startWatchers(context, configFile).then(() => {
       logger.ready();
+      process.send({event: 'READY'});
     });
   }
 

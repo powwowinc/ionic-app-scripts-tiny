@@ -8,6 +8,7 @@ var fs_1 = require("fs");
 var chalk = require("chalk");
 function printDiagnostics(context, diagnosticsType, diagnostics, consoleLogDiagnostics, writeHtmlDiagnostics) {
     if (diagnostics && diagnostics.length) {
+        process.send({ event: 'BUILD_ERROR', data: diagnostics });
         if (consoleLogDiagnostics) {
             diagnostics.forEach(consoleLogDiagnostic);
         }
