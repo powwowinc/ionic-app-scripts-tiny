@@ -407,4 +407,4 @@ export interface Watcher {
 
 let watchCount = 0;
 
-const BUILD_UPDATE_DEBOUNCE_MS = 20;
+const BUILD_UPDATE_DEBOUNCE_MS = 100;
