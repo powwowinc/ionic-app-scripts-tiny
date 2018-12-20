@@ -326,4 +326,4 @@ var taskInfo = {
     defaultConfigFile: 'watch.config'
 };
 var watchCount = 0;
-var BUILD_UPDATE_DEBOUNCE_MS = 100;
+var BUILD_UPDATE_DEBOUNCE_MS = 300;

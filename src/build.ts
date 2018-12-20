@@ -7,12 +7,13 @@ import { postprocess } from './postprocess';
 import { preprocess, preprocessUpdate } from './preprocess';
 import { sass, sassUpdate } from './sass';
 import { templateUpdate } from './template';
-import { transpile, transpileDiagnosticsOnly, transpileUpdate } from './transpile';
+import { transpile, transpileDiagnosticsOnly, transpileUpdate, getTsConfig } from './transpile';
 import * as Constants from './util/constants';
 import { BuildError } from './util/errors';
 import { emit, EventType } from './util/events';
 import { getBooleanPropertyValue, readFileAsync, setContext } from './util/helpers';
 import { BuildContext, BuildState, BuildUpdateMessage, ChangedFile } from './util/interfaces';
+import { getInMemoryCompilerHostInstance } from './aot/compiler-host-factory';
 
 export function build(context: BuildContext) {
   setContext(context);
@@ -169,6 +170,15 @@ function buildUpdateTasks(changedFiles: ChangedFile[], context: BuildContext) {
         return transpileUpdate(changedFiles, context);
 
       } else if (context.transpileState === BuildState.RequiresBuild) {
+        // cleanup changed source files from the cache
+        let tsConfig = getTsConfig(context);
+        let host = getInMemoryCompilerHostInstance(tsConfig.options);
+        changedFiles.forEach(file => {
+          if (file.ext === '.ts' && file.event === 'change') {
+            host.removeSourceFile(file.filePath);
+          }
+        });
+
         // run the whole transpile
         resolveValue.requiresAppReload = true;
         return transpile(context);

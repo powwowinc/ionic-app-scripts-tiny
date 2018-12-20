@@ -16,6 +16,7 @@ export declare class InMemoryCompilerHost implements CompilerHost {
     getFiles(directoryPath: string): string[];
     getDirectories(directoryPath: string): string[];
     getSourceFile(filePath: string, languageVersion: ScriptTarget, onError?: OnErrorFn): SourceFile;
+    removeSourceFile(filePath: string): void;
     getCancellationToken(): CancellationToken;
     getDefaultLibFileName(options: CompilerOptions): string;
     writeFile(fileName: string, data: string, writeByteOrderMark: boolean, onError?: OnErrorFn): void;

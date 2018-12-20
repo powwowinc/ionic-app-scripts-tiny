@@ -50,6 +50,7 @@ var errors_1 = require("./util/errors");
 var events_1 = require("./util/events");
 var helpers_1 = require("./util/helpers");
 var interfaces_1 = require("./util/interfaces");
+var compiler_host_factory_1 = require("./aot/compiler-host-factory");
 function build(context) {
     helpers_1.setContext(context);
     var logger = new logger_1.Logger("build " + (context.isProd ? 'prod' : 'dev'));
@@ -206,6 +207,14 @@ function buildUpdateTasks(changedFiles, context) {
             return transpile_1.transpileUpdate(changedFiles, context);
         }
         else if (context.transpileState === interfaces_1.BuildState.RequiresBuild) {
+            // cleanup changed source files from the cache
+            var tsConfig = transpile_1.getTsConfig(context);
+            var host_1 = compiler_host_factory_1.getInMemoryCompilerHostInstance(tsConfig.options);
+            changedFiles.forEach(function (file) {
+                if (file.ext === '.ts' && file.event === 'change') {
+                    host_1.removeSourceFile(file.filePath);
+                }
+            });
             // run the whole transpile
             resolveValue.requiresAppReload = true;
             return transpile_1.transpile(context);
