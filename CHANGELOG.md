@@ -1,3 +1,51 @@
+<a name="3.2.1"></a>
+## [3.2.1](https://github.com/ionic-team/ionic-app-scripts/compare/v3.2.0...v3.2.1) (2018-11-26)
+
+* Security release for dependencies for `node-sass`
+
+<a name="3.2.0"></a>
+# [3.2.0](https://github.com/ionic-team/ionic-app-scripts/compare/v3.1.11...v3.2.0) (2018-08-24)
+
+
+### Bug Fixes
+
+* **sass:** remove PostCSS warning ([#1364](https://github.com/ionic-team/ionic-app-scripts/issues/1364)) ([1e2035e](https://github.com/ionic-team/ionic-app-scripts/commit/1e2035e)), closes [#1359](https://github.com/ionic-team/ionic-app-scripts/issues/1359) [#13763](https://github.com/ionic-team/ionic-app-scripts/issues/13763)
+* **serve:** use wss protocol for secure websocket when page is using https ([#1358](https://github.com/ionic-team/ionic-app-scripts/issues/1358)) ([29c3e23](https://github.com/ionic-team/ionic-app-scripts/commit/29c3e23))
+
+
+### Features
+
+* **environments:** configuration via process.env.VAR replacement ([#1471](https://github.com/ionic-team/ionic-app-scripts/issues/1471)) ([53fc341](https://github.com/ionic-team/ionic-app-scripts/commit/53fc341))
+
+
+
+<a name="3.1.11"></a>
+## [3.1.11](https://github.com/ionic-team/ionic-app-scripts/compare/v3.1.10...v3.1.11) (2018-07-12)
+
+
+### Bug Fixes
+
+* **serve:** fix EADDRINUSE issue with dev logger server ([271a6e1](https://github.com/ionic-team/ionic-app-scripts/commit/271a6e1))
+
+
+
+<a name="3.1.10"></a>
+## [3.1.10](https://github.com/ionic-team/ionic-app-scripts/compare/v3.1.9...v3.1.10) (2018-06-11)
+
+
+
+<a name="3.1.9"></a>
+## [3.1.9](https://github.com/ionic-team/ionic-app-scripts/compare/v3.1.8...v3.1.9) (2018-04-18)
+
+
+### Bug Fixes
+
+* **2889:** fix build error with --prod ([94e5f7c](https://github.com/ionic-team/ionic-app-scripts/commit/94e5f7c))
+* **live-server:** update android platform path ([#1407](https://github.com/ionic-team/ionic-app-scripts/issues/1407)) ([1591c81](https://github.com/ionic-team/ionic-app-scripts/commit/1591c81))
+* **serve:** start listening when watch is ready ([06bbd06](https://github.com/ionic-team/ionic-app-scripts/commit/06bbd06))
+
+
+
 <a name="3.1.8"></a>
 ## [3.1.8](https://github.com/ionic-team/ionic-app-scripts/compare/v3.1.7...v3.1.8) (2018-01-18)
 

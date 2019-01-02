@@ -1,15 +1,16 @@
-import { createHttpServer } from './dev-server/http-server';
-import { createLiveReloadServer } from './dev-server/live-reload';
-import { createNotificationServer } from './dev-server/notification-server';
-import { IONIC_LAB_URL, ServeConfig } from './dev-server/serve-config';
-import { Logger } from './logger/logger';
+import * as express from 'express';
+import { BuildContext } from './util/interfaces';
 import { getConfigValue, hasConfigValue } from './util/config';
 import { BuildError } from './util/errors';
 import { setContext } from './util/helpers';
-import { BuildContext } from './util/interfaces';
-import { findClosestOpenPorts } from './util/network';
-import open from './util/open';
+import { Logger } from './logger/logger';
 import { watch } from './watch';
+import open from './util/open';
+import { createNotificationServer } from './dev-server/notification-server';
+import { createHttpServer } from './dev-server/http-server';
+import { createLiveReloadServer } from './dev-server/live-reload';
+import { ServeConfig, IONIC_LAB_URL } from './dev-server/serve-config';
+import { findClosestOpenPorts } from './util/network';
 
 const DEV_LOGGER_DEFAULT_PORT = 53703;
 const LIVE_RELOAD_DEFAULT_PORT = 35729;
@@ -20,10 +21,23 @@ export function serve(context: BuildContext) {
   setContext(context);
 
   let config: ServeConfig;
+  let httpServer: express.Application;
   const host = getHttpServerHost(context);
   const notificationPort = getNotificationPort(context);
   const liveReloadServerPort = getLiveReloadServerPort(context);
   const hostPort = getHttpServerPort(context);
+
+  function finish() {
+    if (config) {
+      if (httpServer) {
+        httpServer.listen(config.httpPort, config.host, function() {
+          Logger.debug(`listening on ${config.httpPort}`);
+        });
+      }
+
+      onReady(config, context);
+    }
+  }
 
   return findClosestOpenPorts(host, [notificationPort, liveReloadServerPort, hostPort])
     .then(([notificationPortFound, liveReloadServerPortFound, hostPortFound]) => {
@@ -51,12 +65,12 @@ export function serve(context: BuildContext) {
 
       createNotificationServer(config);
       createLiveReloadServer(config);
-      createHttpServer(config);
+      httpServer = createHttpServer(config);
 
       return watch(context);
     })
     .then(() => {
-      onReady(config, context);
+      finish();
       return config;
     }, (err: BuildError) => {
       throw err;
@@ -65,10 +79,7 @@ export function serve(context: BuildContext) {
       if (err && err.isFatal) {
         throw err;
       } else {
-        if (config) {
-          onReady(config, context);
-        }
-
+        finish();
         return config;
       }
     });
