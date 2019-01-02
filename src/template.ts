@@ -6,7 +6,6 @@ import * as Constants from './util/constants';
 import { changeExtension, getStringPropertyValue } from './util/helpers';
 import { BuildContext, BuildState, ChangedFile, File } from './util/interfaces';
 
-
 export function templateUpdate(changedFiles: ChangedFile[], context: BuildContext) {
   try {
     const changedTemplates = changedFiles.filter(changedFile => changedFile.ext === '.html');

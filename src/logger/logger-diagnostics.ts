@@ -9,6 +9,7 @@ import { Logger } from './logger';
 
 export function printDiagnostics(context: BuildContext, diagnosticsType: string, diagnostics: Diagnostic[], consoleLogDiagnostics: boolean, writeHtmlDiagnostics: boolean) {
   if (diagnostics && diagnostics.length) {
+    process.send({event: 'BUILD_ERROR', data: diagnostics});
 
     if (consoleLogDiagnostics) {
       diagnostics.forEach(consoleLogDiagnostic);

@@ -1,17 +1,17 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-var autoprefixer = require("autoprefixer");
-var fs_extra_1 = require("fs-extra");
-var node_sass_1 = require("node-sass");
 var path_1 = require("path");
-var postcss = require("postcss");
-var bundle_1 = require("./bundle");
-var logger_1 = require("./logger/logger");
-var logger_diagnostics_1 = require("./logger/logger-diagnostics");
-var logger_sass_1 = require("./logger/logger-sass");
-var config_1 = require("./util/config");
-var errors_1 = require("./util/errors");
 var interfaces_1 = require("./util/interfaces");
+var errors_1 = require("./util/errors");
+var bundle_1 = require("./bundle");
+var fs_extra_1 = require("fs-extra");
+var config_1 = require("./util/config");
+var logger_1 = require("./logger/logger");
+var logger_sass_1 = require("./logger/logger-sass");
+var logger_diagnostics_1 = require("./logger/logger-diagnostics");
+var node_sass_1 = require("node-sass");
+var postcss = require("postcss");
+var autoprefixer = require("autoprefixer");
 function sass(context, configFile) {
     configFile = config_1.getUserConfigFile(context, taskInfo, configFile);
     var logger = new logger_1.Logger('sass');

@@ -1,7 +1,7 @@
 import { normalize, resolve } from 'path';
+import { changeExtension, getContext, readAndCacheFile } from '../util/helpers';
 import { Logger } from '../logger/logger';
 import { FileCache } from '../util/file-cache';
-import { changeExtension, getContext, readAndCacheFile } from '../util/helpers';
 
 export function webpackLoader(source: string, map: any, webpackContex: any) {
   webpackContex.cacheable();

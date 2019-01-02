@@ -37,12 +37,9 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 Object.defineProperty(exports, "__esModule", { value: true });
 var util_1 = require("./build/util");
 var bundle_1 = require("./bundle");
-var clean_1 = require("./clean");
 var copy_1 = require("./copy");
-var lint_1 = require("./lint");
+var deep_linking_1 = require("./deep-linking");
 var logger_1 = require("./logger/logger");
-var minify_1 = require("./minify");
-var ngc_1 = require("./ngc");
 var postprocess_1 = require("./postprocess");
 var preprocess_1 = require("./preprocess");
 var sass_1 = require("./sass");
@@ -53,6 +50,7 @@ var errors_1 = require("./util/errors");
 var events_1 = require("./util/events");
 var helpers_1 = require("./util/helpers");
 var interfaces_1 = require("./util/interfaces");
+var compiler_host_factory_1 = require("./aot/compiler-host-factory");
 function build(context) {
     helpers_1.setContext(context);
     var logger = new logger_1.Logger("build " + (context.isProd ? 'prod' : 'dev'));
@@ -94,14 +92,18 @@ function buildWorker(context) {
     });
 }
 function buildProject(context) {
-    // sync empty the www/build directory
-    clean_1.clean(context);
     buildId++;
-    var copyPromise = copy_1.copy(context);
-    return util_1.scanSrcTsFiles(context)
+    return copy_1.copy(context)
         .then(function () {
-        var compilePromise = (context.runAot) ? ngc_1.ngc(context) : transpile_1.transpile(context);
-        return compilePromise;
+        return util_1.scanSrcTsFiles(context);
+    })
+        .then(function () {
+        if (helpers_1.getBooleanPropertyValue(Constants.ENV_PARSE_DEEPLINKS)) {
+            return deep_linking_1.deepLinking(context);
+        }
+    })
+        .then(function () {
+        return transpile_1.transpile(context);
     })
         .then(function () {
         return preprocess_1.preprocess(context);
@@ -110,29 +112,10 @@ function buildProject(context) {
         return bundle_1.bundle(context);
     })
         .then(function () {
-        var minPromise = (context.runMinifyJs) ? minify_1.minifyJs(context) : Promise.resolve();
-        var sassPromise = sass_1.sass(context)
-            .then(function () {
-            return (context.runMinifyCss) ? minify_1.minifyCss(context) : Promise.resolve();
-        });
-        return Promise.all([
-            minPromise,
-            sassPromise,
-            copyPromise
-        ]);
+        return sass_1.sass(context);
     })
         .then(function () {
         return postprocess_1.postprocess(context);
-    })
-        .then(function () {
-        if (helpers_1.getBooleanPropertyValue(Constants.ENV_ENABLE_LINT)) {
-            // kick off the tslint after everything else
-            // nothing needs to wait on its completion unless bailing on lint error is enabled
-            var result = lint_1.lint(context, null, false);
-            if (helpers_1.getBooleanPropertyValue(Constants.ENV_BAIL_ON_LINT_ERROR)) {
-                return result;
-            }
-        }
     })
         .catch(function (err) {
         throw new errors_1.BuildError(err);
@@ -141,6 +124,7 @@ function buildProject(context) {
 function buildUpdate(changedFiles, context) {
     return new Promise(function (resolve) {
         var logger = new logger_1.Logger('build');
+        process.send({ event: 'BUILD_STARTED' });
         buildId++;
         var buildUpdateMsg = {
             buildId: buildId,
@@ -165,24 +149,8 @@ function buildUpdate(changedFiles, context) {
                     // but does not need to do a full page refresh
                     events_1.emit(events_1.EventType.FileChange, resolveValue.changedFiles);
                 }
-                var requiresLintUpdate = false;
-                for (var _i = 0, changedFiles_1 = changedFiles; _i < changedFiles_1.length; _i++) {
-                    var changedFile = changedFiles_1[_i];
-                    if (changedFile.ext === '.ts') {
-                        if (changedFile.event === 'change' || changedFile.event === 'add') {
-                            requiresLintUpdate = true;
-                            break;
-                        }
-                    }
-                }
-                if (requiresLintUpdate) {
-                    // a ts file changed, so let's lint it too, however
-                    // this task should run as an after thought
-                    if (helpers_1.getBooleanPropertyValue(Constants.ENV_ENABLE_LINT)) {
-                        lint_1.lintUpdate(changedFiles, context, false);
-                    }
-                }
                 logger.finish('green', true);
+                process.send({ event: 'BUILD_FINISHED' });
                 logger_1.Logger.newLine();
                 // we did it!
                 resolve();
@@ -215,6 +183,12 @@ function buildUpdateTasks(changedFiles, context) {
     };
     return loadFiles(changedFiles, context)
         .then(function () {
+        // DEEP LINKING
+        if (helpers_1.getBooleanPropertyValue(Constants.ENV_PARSE_DEEPLINKS)) {
+            return deep_linking_1.deepLinkingUpdate(changedFiles, context);
+        }
+    })
+        .then(function () {
         // TEMPLATE
         if (context.templateState === interfaces_1.BuildState.RequiresUpdate) {
             resolveValue.requiresAppReload = true;
@@ -230,10 +204,17 @@ function buildUpdateTasks(changedFiles, context) {
             // we've already had a successful transpile once, only do an update
             // not that we've also already started a transpile diagnostics only
             // build that only needs to be completed by the end of buildUpdate
-            throw 'transpileUpdate';
-            // return transpileUpdate(changedFiles, context);
+            return transpile_1.transpileUpdate(changedFiles, context);
         }
         else if (context.transpileState === interfaces_1.BuildState.RequiresBuild) {
+            // cleanup changed source files from the cache
+            var tsConfig = transpile_1.getTsConfig(context);
+            var host_1 = compiler_host_factory_1.getInMemoryCompilerHostInstance(tsConfig.options);
+            changedFiles.forEach(function (file) {
+                if (file.ext === '.ts' && file.event === 'change') {
+                    host_1.removeSourceFile(file.filePath);
+                }
+            });
             // run the whole transpile
             resolveValue.requiresAppReload = true;
             return transpile_1.transpile(context);
@@ -243,16 +224,14 @@ function buildUpdateTasks(changedFiles, context) {
     })
         .then(function () {
         // PREPROCESS
-        throw 'preprocessUpdate';
-        // return preprocessUpdate(changedFiles, context);
+        return preprocess_1.preprocessUpdate(changedFiles, context);
     })
         .then(function () {
         // BUNDLE
         if (context.bundleState === interfaces_1.BuildState.RequiresUpdate) {
             // we need to do a bundle update
-            // resolveValue.requiresAppReload = true;
-            throw 'bundleUpdate';
-            // return bundleUpdate(changedFiles, context);
+            resolveValue.requiresAppReload = true;
+            return bundle_1.bundleUpdate(changedFiles, context);
         }
         else if (context.bundleState === interfaces_1.BuildState.RequiresBuild) {
             // we need to do a full bundle build
@@ -312,8 +291,8 @@ function loadFiles(changedFiles, context) {
             });
         }
     };
-    for (var _i = 0, changedFiles_2 = changedFiles; _i < changedFiles_2.length; _i++) {
-        var changedFile = changedFiles_2[_i];
+    for (var _i = 0, changedFiles_1 = changedFiles; _i < changedFiles_1.length; _i++) {
+        var changedFile = changedFiles_1[_i];
         _loop_1(changedFile);
     }
     return Promise.all(promises);
@@ -326,8 +305,7 @@ function loadFiles(changedFiles, context) {
 function buildUpdateParallelTasks(changedFiles, context) {
     var parallelTasks = [];
     if (context.transpileState === interfaces_1.BuildState.RequiresUpdate) {
-        throw 'transpileDiagnosticsOnly';
-        // parallelTasks.push(transpileDiagnosticsOnly(context));
+        parallelTasks.push(transpile_1.transpileDiagnosticsOnly(context));
     }
     return Promise.all(parallelTasks);
 }

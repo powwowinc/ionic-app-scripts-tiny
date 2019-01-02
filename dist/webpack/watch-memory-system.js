@@ -1,8 +1,8 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 var path_1 = require("path");
-var logger_1 = require("../logger/logger");
 var events_1 = require("../util/events");
+var logger_1 = require("../logger/logger");
 var WatchMemorySystem = (function () {
     function WatchMemorySystem(fileCache, srcDir) {
         this.fileCache = fileCache;

@@ -1,10 +1,10 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-var fs = require("fs");
-var nodeSass = require("node-sass");
-var path = require("path");
-var typescript = require("typescript");
 var logger_1 = require("../logger/logger");
+var fs = require("fs");
+var path = require("path");
+var nodeSass = require("node-sass");
+var typescript = require("typescript");
 function bundleCoreComponents(context) {
     var compiler = getCoreCompiler(context);
     if (!compiler) {
@@ -16,12 +16,10 @@ function bundleCoreComponents(context) {
         destDir: context.buildDir,
         attrCase: 'lower',
         packages: {
-            // cleanCss: cleanCss,
             fs: fs,
             path: path,
             nodeSass: nodeSass,
-            // rollup: rollup,
-            typescript: typescript,
+            typescript: typescript
         },
         watch: context.isWatch
     };

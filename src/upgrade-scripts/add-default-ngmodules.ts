@@ -1,9 +1,15 @@
+import { writeFileSync } from 'fs';
 import { join } from 'path';
+
+import { generateDefaultDeepLinkNgModuleContent, getDeepLinkDecoratorContentForSourceFile, getNgModulePathFromCorrespondingPage } from '../deep-linking/util';
 import { generateContext } from '../util/config';
+import * as Constants from '../util/constants';
 import { FileCache } from '../util/file-cache';
 import { globAll, GlobResult } from '../util/glob-util';
-import { readFileAsync } from '../util/helpers';
+import { changeExtension, getStringPropertyValue, readFileAsync } from '../util/helpers';
 import { BuildContext } from '../util/interfaces';
+
+import { getTypescriptSourceFile } from '../util/typescript-utils';
 
 export function getTsFilePaths(context: BuildContext) {
   const tsFileGlobString = join(context.srcDir, '**', '*.ts');
@@ -24,21 +30,21 @@ export function readTsFiles(context: BuildContext, tsFilePaths: string[]) {
 }
 
 export function generateAndWriteNgModules(fileCache: FileCache) {
-  // fileCache.getAll().forEach(file => {
-  //   const sourceFile = getTypescriptSourceFile(file.path, file.content);
-  //   const deepLinkDecoratorData = getDeepLinkDecoratorContentForSourceFile(sourceFile);
-  //   if (deepLinkDecoratorData) {
-  //     // we have a valid DeepLink decorator
-  //     const correspondingNgModulePath = getNgModulePathFromCorrespondingPage(file.path);
-  //     const ngModuleFile = fileCache.get(correspondingNgModulePath);
-  //     if (!ngModuleFile) {
-  //       // the ngModule file does not exist, so go ahead and create a default one
-  //       const defaultNgModuleContent = generateDefaultDeepLinkNgModuleContent(file.path, deepLinkDecoratorData.className);
-  //       const ngModuleFilePath = changeExtension(file.path, getStringPropertyValue(Constants.ENV_NG_MODULE_FILE_NAME_SUFFIX));
-  //       writeFileSync(ngModuleFilePath, defaultNgModuleContent);
-  //     }
-  //   }
-  // });
+  fileCache.getAll().forEach(file => {
+    const sourceFile = getTypescriptSourceFile(file.path, file.content);
+    const deepLinkDecoratorData = getDeepLinkDecoratorContentForSourceFile(sourceFile);
+    if (deepLinkDecoratorData) {
+      // we have a valid DeepLink decorator
+      const correspondingNgModulePath = getNgModulePathFromCorrespondingPage(file.path);
+      const ngModuleFile = fileCache.get(correspondingNgModulePath);
+      if (!ngModuleFile) {
+        // the ngModule file does not exist, so go ahead and create a default one
+        const defaultNgModuleContent = generateDefaultDeepLinkNgModuleContent(file.path, deepLinkDecoratorData.className);
+        const ngModuleFilePath = changeExtension(file.path, getStringPropertyValue(Constants.ENV_NG_MODULE_FILE_NAME_SUFFIX));
+        writeFileSync(ngModuleFilePath, defaultNgModuleContent);
+      }
+    }
+  });
 }
 
 function run() {

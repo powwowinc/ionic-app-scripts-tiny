@@ -1,12 +1,11 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-var crypto_1 = require("crypto");
+var path_1 = require("path");
 var fs_extra_1 = require("fs-extra");
 var osName = require("os-name");
-var path_1 = require("path");
-var logger_1 = require("../logger/logger");
 var Constants = require("./constants");
 var errors_1 = require("./errors");
+var logger_1 = require("../logger/logger");
 var camel_case_regexp_1 = require("./helpers/camel-case-regexp");
 var camel_case_upper_regexp_1 = require("./helpers/camel-case-upper-regexp");
 var non_word_regexp_1 = require("./helpers/non-word-regexp");
@@ -35,21 +34,6 @@ function getUserPackageJson(userRootDir) {
     catch (e) { }
     return null;
 }
-function getSystemText(userRootDir) {
-    var systemData = getSystemData(userRootDir);
-    var d = [];
-    d.push("Ionic Framework: " + systemData.ionicFramework);
-    if (systemData.ionicNative) {
-        d.push("Ionic Native: " + systemData.ionicNative);
-    }
-    d.push("Ionic App Scripts: " + systemData.ionicAppScripts);
-    d.push("Angular Core: " + systemData.angularCore);
-    d.push("Angular Compiler CLI: " + systemData.angularCompilerCli);
-    d.push("Node: " + systemData.node);
-    d.push("OS Platform: " + systemData.osName);
-    return d;
-}
-exports.getSystemText = getSystemText;
 function getSystemData(userRootDir) {
     var d = {
         ionicAppScripts: getAppScriptsVersion(),
@@ -232,14 +216,6 @@ function getParsedDeepLinkConfig() {
     return _deepLinkConfigEntriesMap;
 }
 exports.getParsedDeepLinkConfig = getParsedDeepLinkConfig;
-function transformSrcPathToTmpPath(originalPath, context) {
-    return originalPath.replace(context.srcDir, context.tmpDir);
-}
-exports.transformSrcPathToTmpPath = transformSrcPathToTmpPath;
-function transformTmpPathToSrcPath(originalPath, context) {
-    return originalPath.replace(context.tmpDir, context.srcDir);
-}
-exports.transformTmpPathToSrcPath = transformTmpPathToSrcPath;
 function changeExtension(filePath, newExtension) {
     var dir = path_1.dirname(filePath);
     var extension = path_1.extname(filePath);
@@ -257,10 +233,6 @@ function escapeHtml(unsafe) {
         .replace(/'/g, '&#039;');
 }
 exports.escapeHtml = escapeHtml;
-function escapeStringForRegex(input) {
-    return input.replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, '\\$&');
-}
-exports.escapeStringForRegex = escapeStringForRegex;
 function rangeReplace(source, startIndex, endIndex, newContent) {
     return source.substring(0, startIndex) + newContent + source.substring(endIndex);
 }
@@ -273,10 +245,6 @@ function toUnixPath(filePath) {
     return filePath.replace(/\\/g, '/');
 }
 exports.toUnixPath = toUnixPath;
-function generateRandomHexString(numCharacters) {
-    return crypto_1.randomBytes(Math.ceil(numCharacters / 2)).toString('hex').slice(0, numCharacters);
-}
-exports.generateRandomHexString = generateRandomHexString;
 function getStringPropertyValue(propertyName) {
     var result = process.env[propertyName];
     return result;
@@ -292,14 +260,6 @@ function getBooleanPropertyValue(propertyName) {
     return result === 'true';
 }
 exports.getBooleanPropertyValue = getBooleanPropertyValue;
-function convertFilePathToNgFactoryPath(filePath) {
-    var directory = path_1.dirname(filePath);
-    var extension = path_1.extname(filePath);
-    var extensionlessFileName = path_1.basename(filePath, extension);
-    var ngFactoryFileName = extensionlessFileName + '.ngfactory' + extension;
-    return path_1.join(directory, ngFactoryFileName);
-}
-exports.convertFilePathToNgFactoryPath = convertFilePathToNgFactoryPath;
 function printDependencyMap(map) {
     map.forEach(function (dependencySet, filePath) {
         logger_1.Logger.unformattedDebug('\n\n');

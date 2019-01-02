@@ -1,7 +1,7 @@
 import { extname } from 'path';
-import { Logger } from '../logger/logger';
-import { EventType, on } from '../util/events';
 import { FileCache } from '../util/file-cache';
+import { EventType, on } from '../util/events';
+import { Logger } from '../logger/logger';
 
 export class WatchMemorySystem {
 

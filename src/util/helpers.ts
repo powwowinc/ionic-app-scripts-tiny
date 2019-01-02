@@ -1,15 +1,14 @@
-import { randomBytes } from 'crypto';
+import { basename, dirname, extname, join } from 'path';
 import { createReadStream, createWriteStream, ensureDir, readdir, readFile, readJson, readJsonSync, remove, unlink, writeFile } from 'fs-extra';
 import * as osName from 'os-name';
-import { basename, dirname, extname, join } from 'path';
-import { Logger } from '../logger/logger';
 
 import * as Constants from './constants';
 import { BuildError } from './errors';
+import { BuildContext, DeepLinkConfigEntry, SemverVersion, WebpackStats } from './interfaces';
+import { Logger } from '../logger/logger';
 import { CAMEL_CASE_REGEXP } from './helpers/camel-case-regexp';
 import { CAMEL_CASE_UPPER_REGEXP } from './helpers/camel-case-upper-regexp';
 import { NON_WORD_REGEXP } from './helpers/non-word-regexp';
-import { BuildContext, DeepLinkConfigEntry, SemverVersion, WebpackStats } from './interfaces';
 
 let _context: BuildContext;
 let _deepLinkConfigEntriesMap: Map<string, DeepLinkConfigEntry>;
@@ -35,24 +34,6 @@ function getUserPackageJson(userRootDir: string) {
   } catch (e) {}
   return null;
 }
-
-export function getSystemText(userRootDir: string) {
-  const systemData = getSystemData(userRootDir);
-  const d: string[] = [];
-
-  d.push(`Ionic Framework: ${systemData.ionicFramework}`);
-  if (systemData.ionicNative) {
-    d.push(`Ionic Native: ${systemData.ionicNative}`);
-  }
-  d.push(`Ionic App Scripts: ${systemData.ionicAppScripts}`);
-  d.push(`Angular Core: ${systemData.angularCore}`);
-  d.push(`Angular Compiler CLI: ${systemData.angularCompilerCli}`);
-  d.push(`Node: ${systemData.node}`);
-  d.push(`OS Platform: ${systemData.osName}`);
-
-  return d;
-}
-
 
 export function getSystemData(userRootDir: string) {
   const d = {
@@ -247,14 +228,6 @@ export function getParsedDeepLinkConfig(): Map<string, DeepLinkConfigEntry> {
   return _deepLinkConfigEntriesMap;
 }
 
-export function transformSrcPathToTmpPath(originalPath: string, context: BuildContext) {
-  return originalPath.replace(context.srcDir, context.tmpDir);
-}
-
-export function transformTmpPathToSrcPath(originalPath: string, context: BuildContext) {
-  return originalPath.replace(context.tmpDir, context.srcDir);
-}
-
 export function changeExtension(filePath: string, newExtension: string) {
   const dir = dirname(filePath);
   const extension = extname(filePath);
@@ -272,10 +245,6 @@ export function escapeHtml(unsafe: string) {
          .replace(/'/g, '&#039;');
 }
 
-export function escapeStringForRegex(input: string) {
-  return input.replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, '\\$&');
-}
-
 export function rangeReplace(source: string, startIndex: number, endIndex: number, newContent: string) {
   return source.substring(0, startIndex) + newContent + source.substring(endIndex);
 }
@@ -286,10 +255,6 @@ export function stringSplice(source: string, startIndex: number, numToDelete: nu
 
 export function toUnixPath(filePath: string) {
   return filePath.replace(/\\/g, '/');
-}
-
-export function generateRandomHexString(numCharacters: number) {
-  return randomBytes(Math.ceil(numCharacters / 2)).toString('hex').slice(0, numCharacters);
 }
 
 export function getStringPropertyValue(propertyName: string): string {
@@ -305,14 +270,6 @@ export function getIntPropertyValue(propertyName: string): number {
 export function getBooleanPropertyValue(propertyName: string): boolean {
   const result = process.env[propertyName];
   return result === 'true';
-}
-
-export function convertFilePathToNgFactoryPath(filePath: string) {
-  const directory = dirname(filePath);
-  const extension = extname(filePath);
-  const extensionlessFileName = basename(filePath, extension);
-  const ngFactoryFileName = extensionlessFileName + '.ngfactory' + extension;
-  return join(directory, ngFactoryFileName);
 }
 
 export function printDependencyMap(map: Map<string, Set<string>>) {

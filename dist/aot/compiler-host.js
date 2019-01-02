@@ -70,6 +70,10 @@ var InMemoryCompilerHost = (function () {
         this.sourceFileMap.set(filePath, diskSourceFile);
         return diskSourceFile;
     };
+    InMemoryCompilerHost.prototype.removeSourceFile = function (filePath) {
+        filePath = path_1.normalize(filePath);
+        this.sourceFileMap.delete(filePath);
+    };
     InMemoryCompilerHost.prototype.getCancellationToken = function () {
         return this.diskCompilerHost.getCancellationToken();
     };

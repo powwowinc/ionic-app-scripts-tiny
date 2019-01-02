@@ -1,8 +1,8 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+var helpers_1 = require("../util/helpers");
 var path_1 = require("path");
 var constants_1 = require("../util/constants");
-var helpers_1 = require("../util/helpers");
 function provideCorrectSourcePath(webpackObj) {
     var context = helpers_1.getContext();
     return provideCorrectSourcePathInternal(webpackObj, context);

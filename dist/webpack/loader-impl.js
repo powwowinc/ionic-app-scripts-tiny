@@ -1,8 +1,8 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 var path_1 = require("path");
-var logger_1 = require("../logger/logger");
 var helpers_1 = require("../util/helpers");
+var logger_1 = require("../logger/logger");
 function webpackLoader(source, map, webpackContex) {
     webpackContex.cacheable();
     var callback = webpackContex.async();

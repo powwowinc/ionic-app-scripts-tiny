@@ -1,13 +1,18 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+var events_1 = require("events");
 var path_1 = require("path");
 var webpackApi = require("webpack");
 var logger_1 = require("./logger/logger");
 var config_1 = require("./util/config");
 var Constants = require("./util/constants");
 var errors_1 = require("./util/errors");
+var events_2 = require("./util/events");
 var helpers_1 = require("./util/helpers");
 var interfaces_1 = require("./util/interfaces");
+var eventEmitter = new events_1.EventEmitter();
+var INCREMENTAL_BUILD_FAILED = 'incremental_build_failed';
+var INCREMENTAL_BUILD_SUCCESS = 'incremental_build_success';
 /*
  * Due to how webpack watch works, sometimes we start an update event
  * but it doesn't affect the bundle at all, for example adding a new typescript file
@@ -32,12 +37,34 @@ function webpack(context, configFile) {
     });
 }
 exports.webpack = webpack;
+function webpackUpdate(changedFiles, context, configFile) {
+    var logger = new logger_1.Logger('webpack update');
+    var webpackConfig = getWebpackConfig(context, configFile);
+    logger_1.Logger.debug('webpackUpdate: Starting Incremental Build');
+    var promisetoReturn = runWebpackIncrementalBuild(false, context, webpackConfig);
+    events_2.emit(events_2.EventType.WebpackFilesChanged, null);
+    return promisetoReturn.then(function (stats) {
+        // the webpack incremental build finished, so reset the list of pending promises
+        pendingPromises = [];
+        logger_1.Logger.debug('webpackUpdate: Incremental Build Done, processing Data');
+        return webpackBuildComplete(stats, context, webpackConfig);
+    }).then(function () {
+        context.bundleState = interfaces_1.BuildState.SuccessfulBuild;
+        return logger.finish();
+    }).catch(function (err) {
+        context.bundleState = interfaces_1.BuildState.RequiresBuild;
+        if (err instanceof errors_1.IgnorableError) {
+            throw err;
+        }
+        throw logger.fail(err);
+    });
+}
+exports.webpackUpdate = webpackUpdate;
 function webpackWorker(context, configFile) {
     var webpackConfig = getWebpackConfig(context, configFile);
     var promise = null;
     if (context.isWatch) {
-        throw 'runWebpackIncrementalBuild';
-        // promise = runWebpackIncrementalBuild(!context.webpackWatch, context, webpackConfig);
+        promise = runWebpackIncrementalBuild(!context.webpackWatch, context, webpackConfig);
     }
     else {
         promise = runWebpackFullBuild(webpackConfig);
@@ -107,6 +134,59 @@ function runWebpackFullBuild(config) {
     });
 }
 exports.runWebpackFullBuild = runWebpackFullBuild;
+function runWebpackIncrementalBuild(initializeWatch, context, config) {
+    var promise = new Promise(function (resolve, reject) {
+        // start listening for events, remove listeners once an event is received
+        eventEmitter.on(INCREMENTAL_BUILD_FAILED, function (err) {
+            logger_1.Logger.debug('Webpack Bundle Update Failed');
+            eventEmitter.removeAllListeners();
+            handleWebpackBuildFailure(resolve, reject, err, promise, pendingPromises);
+        });
+        eventEmitter.on(INCREMENTAL_BUILD_SUCCESS, function (stats) {
+            logger_1.Logger.debug('Webpack Bundle Updated');
+            eventEmitter.removeAllListeners();
+            handleWebpackBuildSuccess(resolve, reject, stats, promise, pendingPromises);
+        });
+        if (initializeWatch) {
+            startWebpackWatch(context, config);
+        }
+    });
+    pendingPromises.push(promise);
+    return promise;
+}
+function handleWebpackBuildFailure(resolve, reject, error, promise, pendingPromises) {
+    // check if the promise if the last promise in the list of pending promises
+    if (pendingPromises.length > 0 && pendingPromises[pendingPromises.length - 1] === promise) {
+        // reject this one with a build error
+        reject(new errors_1.BuildError(error));
+        return;
+    }
+    // for all others, reject with an ignorable error
+    reject(new errors_1.IgnorableError());
+}
+function handleWebpackBuildSuccess(resolve, reject, stats, promise, pendingPromises) {
+    // check if the promise if the last promise in the list of pending promises
+    if (pendingPromises.length > 0 && pendingPromises[pendingPromises.length - 1] === promise) {
+        logger_1.Logger.debug('handleWebpackBuildSuccess: Resolving with Webpack data');
+        resolve(stats);
+        return;
+    }
+    // for all others, reject with an ignorable error
+    logger_1.Logger.debug('handleWebpackBuildSuccess: Rejecting with ignorable error');
+    reject(new errors_1.IgnorableError());
+}
+function startWebpackWatch(context, config) {
+    logger_1.Logger.debug('Starting Webpack watch');
+    var compiler = webpackApi(config);
+    context.webpackWatch = compiler.watch({}, function (err, stats) {
+        if (err) {
+            eventEmitter.emit(INCREMENTAL_BUILD_FAILED, err);
+        }
+        else {
+            eventEmitter.emit(INCREMENTAL_BUILD_SUCCESS, stats);
+        }
+    });
+}
 function getWebpackConfig(context, configFile) {
     configFile = config_1.getUserConfigFile(context, taskInfo, configFile);
     var webpackConfigDictionary = config_1.fillConfigDefaults(configFile, taskInfo.defaultConfigFile);
@@ -124,6 +204,11 @@ function getWebpackConfigFromDictionary(context, webpackConfigDictionary) {
     return webpackConfigDictionary['dev'];
 }
 exports.getWebpackConfigFromDictionary = getWebpackConfigFromDictionary;
+function getOutputDest(context) {
+    var webpackConfig = getWebpackConfig(context, null);
+    return path_1.join(webpackConfig.output.path, webpackConfig.output.filename);
+}
+exports.getOutputDest = getOutputDest;
 var taskInfo = {
     fullArg: '--webpack',
     shortArg: '-w',

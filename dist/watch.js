@@ -1,9 +1,11 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-var chokidar = require("chokidar");
 var path_1 = require("path");
+var chokidar = require("chokidar");
 var buildTask = require("./build");
+var copy_1 = require("./copy");
 var logger_1 = require("./logger/logger");
+var transpile_1 = require("./transpile");
 var config_1 = require("./util/config");
 var Constants = require("./util/constants");
 var errors_1 = require("./util/errors");
@@ -28,6 +30,7 @@ function watch(context, configFile) {
     function buildDone() {
         return startWatchers(context, configFile).then(function () {
             logger.ready();
+            process.send({ event: 'READY' });
         });
     }
     return buildTask.build(context)
@@ -234,8 +237,7 @@ function copyUpdate(event, filePath, context) {
             queuedCopyChanges.length = 0;
             if (changedFiles && changedFiles.length) {
                 // cool, we've got some build updating to do ;)
-                throw 'copyUpdateHandler';
-                // copyUpdateHandler(changedFiles, context);
+                copy_1.copyUpdate(changedFiles, context);
             }
         }, BUILD_UPDATE_DEBOUNCE_MS);
     }
@@ -255,22 +257,24 @@ function runBuildUpdate(context, changedFiles) {
     }
     var tsFiles = changedFiles.filter(function (f) { return f.ext === '.ts'; });
     if (tsFiles.length) {
-        // let requiresFullBuild = false;
-        // for (const tsFile of tsFiles) {
-        // if (!canRunTranspileUpdate(tsFile.event, tsFiles[0].filePath, context)) {
-        //   requiresFullBuild = true;
-        // break;
-        // }
-        // }
-        // if (requiresFullBuild) {
-        // .ts file was added or deleted, we need a full rebuild
-        context.transpileState = interfaces_1.BuildState.RequiresBuild;
-        context.deepLinkState = interfaces_1.BuildState.RequiresBuild;
-        // } else {
-        // .ts files have changed, so we can get away with doing an update
-        // context.transpileState = BuildState.RequiresUpdate;
-        // context.deepLinkState = BuildState.RequiresUpdate;
-        // }
+        var requiresFullBuild = false;
+        for (var _i = 0, tsFiles_1 = tsFiles; _i < tsFiles_1.length; _i++) {
+            var tsFile = tsFiles_1[_i];
+            if (!transpile_1.canRunTranspileUpdate(tsFile.event, tsFiles[0].filePath, context)) {
+                requiresFullBuild = true;
+                break;
+            }
+        }
+        if (requiresFullBuild) {
+            // .ts file was added or deleted, we need a full rebuild
+            context.transpileState = interfaces_1.BuildState.RequiresBuild;
+            context.deepLinkState = interfaces_1.BuildState.RequiresBuild;
+        }
+        else {
+            // .ts files have changed, so we can get away with doing an update
+            context.transpileState = interfaces_1.BuildState.RequiresUpdate;
+            context.deepLinkState = interfaces_1.BuildState.RequiresUpdate;
+        }
     }
     var sassFiles = changedFiles.filter(function (f) { return /^\.s(c|a)ss$/.test(f.ext); });
     if (sassFiles.length) {
@@ -322,4 +326,4 @@ var taskInfo = {
     defaultConfigFile: 'watch.config'
 };
 var watchCount = 0;
-var BUILD_UPDATE_DEBOUNCE_MS = 20;
+var BUILD_UPDATE_DEBOUNCE_MS = 300;

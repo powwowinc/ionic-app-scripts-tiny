@@ -1,11 +1,16 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 var errors_1 = require("../util/errors");
+var config_1 = require("../util/config");
+var chalk = require("chalk");
 var Logger = (function () {
     function Logger(scope) {
         this.start = Date.now();
         this.scope = scope;
-        var msg = scope + " started";
+        var msg = scope + " started " + chalk.dim('...');
+        if (config_1.isDebugMode()) {
+            msg += memoryUsage();
+        }
         Logger.info(msg);
     }
     Logger.prototype.ready = function (color, bold) {
@@ -30,7 +35,16 @@ var Logger = (function () {
             }
         }
         var msg = this.scope + " " + type;
-        msg += ' ' + time;
+        if (color) {
+            msg = chalk[color](msg);
+        }
+        if (bold) {
+            msg = chalk.bold(msg);
+        }
+        msg += ' ' + chalk.dim(time);
+        if (config_1.isDebugMode()) {
+            msg += memoryUsage();
+        }
         Logger.info(msg);
     };
     Logger.prototype.fail = function (err) {
@@ -46,6 +60,12 @@ var Logger = (function () {
                 if (!err.hasBeenLogged) {
                     Logger.error("" + failedMsg);
                     err.hasBeenLogged = true;
+                    if (err.stack && config_1.isDebugMode()) {
+                        Logger.debug(err.stack);
+                    }
+                }
+                else if (config_1.isDebugMode()) {
+                    Logger.debug("" + failedMsg);
                 }
                 return err;
             }
@@ -77,9 +97,23 @@ var Logger = (function () {
         if (lines.length) {
             var prefix = timePrefix();
             var lineOneMsg = lines[0].substr(prefix.length);
-            lines[0] = prefix + lineOneMsg;
+            if (color) {
+                lineOneMsg = chalk[color](lineOneMsg);
+            }
+            if (bold) {
+                lineOneMsg = chalk.bold(lineOneMsg);
+            }
+            lines[0] = chalk.dim(prefix) + lineOneMsg;
         }
         lines.forEach(function (line, lineIndex) {
+            if (lineIndex > 0) {
+                if (color) {
+                    line = chalk[color](line);
+                }
+                if (bold) {
+                    line = chalk.bold(line);
+                }
+            }
             console.log(line);
         });
     };
@@ -97,7 +131,7 @@ var Logger = (function () {
             lines[0] = prefix + lines[0].substr(prefix.length);
         }
         lines.forEach(function (line) {
-            console.warn(line);
+            console.warn(chalk.yellow(line));
         });
     };
     /**
@@ -112,16 +146,19 @@ var Logger = (function () {
         if (lines.length) {
             var prefix = timePrefix();
             lines[0] = prefix + lines[0].substr(prefix.length);
+            if (config_1.isDebugMode()) {
+                lines[0] += memoryUsage();
+            }
         }
         lines.forEach(function (line) {
-            console.error(line);
+            console.error(chalk.red(line));
         });
     };
     Logger.unformattedError = function (msg) {
-        console.error(msg);
+        console.error(chalk.red(msg));
     };
     Logger.unformattedDebug = function (msg) {
-        console.log(msg);
+        console.log(chalk.cyan(msg));
     };
     /**
      * Prints out a blue colored DEBUG prefix. Only prints out when debug mode.
@@ -130,6 +167,17 @@ var Logger = (function () {
         var msg = [];
         for (var _i = 0; _i < arguments.length; _i++) {
             msg[_i] = arguments[_i];
+        }
+        if (config_1.isDebugMode()) {
+            msg.push(memoryUsage());
+            var lines = Logger.wordWrap(msg);
+            if (lines.length) {
+                var prefix = '[ DEBUG! ]';
+                lines[0] = prefix + lines[0].substr(prefix.length);
+            }
+            lines.forEach(function (line) {
+                console.log(chalk.cyan(line));
+            });
         }
     };
     Logger.wordWrap = function (msg) {
@@ -236,4 +284,7 @@ exports.Logger = Logger;
 function timePrefix() {
     var date = new Date();
     return '[' + ('0' + date.getHours()).slice(-2) + ':' + ('0' + date.getMinutes()).slice(-2) + ':' + ('0' + date.getSeconds()).slice(-2) + ']';
+}
+function memoryUsage() {
+    return chalk.dim(" MEM: " + (process.memoryUsage().rss / 1000000).toFixed(1) + "MB");
 }

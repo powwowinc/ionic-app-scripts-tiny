@@ -1,6 +1,9 @@
-import { BuildContext, TaskInfo } from './util/interfaces';
+import { BuildContext, ChangedFile, TaskInfo } from './util/interfaces';
+import { Watcher } from './watch';
 export declare function copy(context: BuildContext, configFile?: string): Promise<void>;
 export declare function copyWorker(context: BuildContext, configFile: string): Promise<void[]>;
+export declare function copyUpdate(changedFiles: ChangedFile[], context: BuildContext): Promise<void>;
+export declare function copyConfigToWatchConfig(context: BuildContext): Watcher;
 export declare const taskInfo: TaskInfo;
 export interface CopyConfig {
     [index: string]: CopyOptions;

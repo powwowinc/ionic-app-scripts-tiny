@@ -1,23 +1,19 @@
 import { readVersionOfDependencies, scanSrcTsFiles, validateRequiredFilesExist, validateTsConfigSettings } from './build/util';
-
-
-import { bundle } from './bundle';
-import { clean } from './clean';
+import { bundle, bundleUpdate } from './bundle';
 import { copy } from './copy';
-import { lint, lintUpdate } from './lint';
+import { deepLinking, deepLinkingUpdate } from './deep-linking';
 import { Logger } from './logger/logger';
-import { minifyCss, minifyJs } from './minify';
-import { ngc } from './ngc';
 import { postprocess } from './postprocess';
-import { preprocess } from './preprocess';
+import { preprocess, preprocessUpdate } from './preprocess';
 import { sass, sassUpdate } from './sass';
 import { templateUpdate } from './template';
-import { transpile } from './transpile';
+import { transpile, transpileDiagnosticsOnly, transpileUpdate, getTsConfig } from './transpile';
 import * as Constants from './util/constants';
 import { BuildError } from './util/errors';
 import { emit, EventType } from './util/events';
 import { getBooleanPropertyValue, readFileAsync, setContext } from './util/helpers';
 import { BuildContext, BuildState, BuildUpdateMessage, ChangedFile } from './util/interfaces';
+import { getInMemoryCompilerHostInstance } from './aot/compiler-host-factory';
 
 export function build(context: BuildContext) {
   setContext(context);
@@ -46,22 +42,19 @@ async function buildWorker(context: BuildContext) {
 }
 
 function buildProject(context: BuildContext) {
-  // sync empty the www/build directory
-  clean(context);
-
   buildId++;
 
-  const copyPromise = copy(context);
-
-  return scanSrcTsFiles(context)
-    // .then(() => {
-    //   if (getBooleanPropertyValue(Constants.ENV_PARSE_DEEPLINKS)) {
-    //     return deepLinking(context);
-    //   }
-    // })
+  return copy(context)
     .then(() => {
-      const compilePromise = (context.runAot) ? ngc(context) : transpile(context);
-      return compilePromise;
+      return scanSrcTsFiles(context);
+    })
+    .then(() => {
+      if (getBooleanPropertyValue(Constants.ENV_PARSE_DEEPLINKS)) {
+        return deepLinking(context);
+      }
+    })
+    .then(() => {
+      return transpile(context);
     })
     .then(() => {
       return preprocess(context);
@@ -70,30 +63,10 @@ function buildProject(context: BuildContext) {
       return bundle(context);
     })
     .then(() => {
-      const minPromise = (context.runMinifyJs) ? minifyJs(context) : Promise.resolve();
-      const sassPromise = sass(context)
-        .then(() => {
-          return (context.runMinifyCss) ? minifyCss(context) : Promise.resolve();
-        });
-
-      return Promise.all([
-        minPromise,
-        sassPromise,
-        copyPromise
-      ]);
+      return sass(context);
     })
     .then(() => {
       return postprocess(context);
-    })
-    .then(() => {
-      if (getBooleanPropertyValue(Constants.ENV_ENABLE_LINT)) {
-        // kick off the tslint after everything else
-        // nothing needs to wait on its completion unless bailing on lint error is enabled
-        const result = lint(context, null, false);
-        if (getBooleanPropertyValue(Constants.ENV_BAIL_ON_LINT_ERROR)) {
-          return result;
-        }
-      }
     })
     .catch(err => {
       throw new BuildError(err);
@@ -103,6 +76,7 @@ function buildProject(context: BuildContext) {
 export function buildUpdate(changedFiles: ChangedFile[], context: BuildContext) {
   return new Promise(resolve => {
     const logger = new Logger('build');
+    process.send({event: 'BUILD_STARTED'});
 
     buildId++;
 
@@ -133,24 +107,8 @@ export function buildUpdate(changedFiles: ChangedFile[], context: BuildContext) 
           emit(EventType.FileChange, resolveValue.changedFiles);
         }
 
-        let requiresLintUpdate = false;
-        for (const changedFile of changedFiles) {
-          if (changedFile.ext === '.ts') {
-            if (changedFile.event === 'change' || changedFile.event === 'add') {
-              requiresLintUpdate = true;
-              break;
-            }
-          }
-        }
-        if (requiresLintUpdate) {
-          // a ts file changed, so let's lint it too, however
-          // this task should run as an after thought
-          if (getBooleanPropertyValue(Constants.ENV_ENABLE_LINT)) {
-            lintUpdate(changedFiles, context, false);
-          }
-        }
-
         logger.finish('green', true);
+        process.send({event: 'BUILD_FINISHED'});
         Logger.newLine();
 
         // we did it!
@@ -186,12 +144,12 @@ function buildUpdateTasks(changedFiles: ChangedFile[], context: BuildContext) {
   };
 
   return loadFiles(changedFiles, context)
-    // .then(() => {
-    //   // DEEP LINKING
-    //   if (getBooleanPropertyValue(Constants.ENV_PARSE_DEEPLINKS)) {
-    //     return deepLinkingUpdate(changedFiles, context);
-    //   }
-    // })
+    .then(() => {
+      // DEEP LINKING
+      if (getBooleanPropertyValue(Constants.ENV_PARSE_DEEPLINKS)) {
+        return deepLinkingUpdate(changedFiles, context);
+      }
+    })
     .then(() => {
       // TEMPLATE
       if (context.templateState === BuildState.RequiresUpdate) {
@@ -209,11 +167,18 @@ function buildUpdateTasks(changedFiles: ChangedFile[], context: BuildContext) {
         // we've already had a successful transpile once, only do an update
         // not that we've also already started a transpile diagnostics only
         // build that only needs to be completed by the end of buildUpdate
-
-        throw 'transpileUpdate';
-        // return transpileUpdate(changedFiles, context);
+        return transpileUpdate(changedFiles, context);
 
       } else if (context.transpileState === BuildState.RequiresBuild) {
+        // cleanup changed source files from the cache
+        let tsConfig = getTsConfig(context);
+        let host = getInMemoryCompilerHostInstance(tsConfig.options);
+        changedFiles.forEach(file => {
+          if (file.ext === '.ts' && file.event === 'change') {
+            host.removeSourceFile(file.filePath);
+          }
+        });
+
         // run the whole transpile
         resolveValue.requiresAppReload = true;
         return transpile(context);
@@ -224,16 +189,14 @@ function buildUpdateTasks(changedFiles: ChangedFile[], context: BuildContext) {
     })
     .then(() => {
       // PREPROCESS
-      throw 'preprocessUpdate';
-      // return preprocessUpdate(changedFiles, context);
+      return preprocessUpdate(changedFiles, context);
     })
     .then(() => {
       // BUNDLE
       if (context.bundleState === BuildState.RequiresUpdate) {
         // we need to do a bundle update
-        // resolveValue.requiresAppReload = true;
-        throw 'bundleUpdate';
-        // return bundleUpdate(changedFiles, context);
+        resolveValue.requiresAppReload = true;
+        return bundleUpdate(changedFiles, context);
 
       } else if (context.bundleState === BuildState.RequiresBuild) {
         // we need to do a full bundle build
@@ -316,8 +279,7 @@ function buildUpdateParallelTasks(changedFiles: ChangedFile[], context: BuildCon
   const parallelTasks: Promise<any>[] = [];
 
   if (context.transpileState === BuildState.RequiresUpdate) {
-    throw 'transpileDiagnosticsOnly';
-    // parallelTasks.push(transpileDiagnosticsOnly(context));
+    parallelTasks.push(transpileDiagnosticsOnly(context));
   }
 
   return Promise.all(parallelTasks);

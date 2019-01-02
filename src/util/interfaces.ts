@@ -129,14 +129,6 @@ export interface PrintLine {
   errorLength: number;
 }
 
-
-export interface WsMessage {
-  category: string;
-  type: string;
-  data: any;
-}
-
-
 export interface BuildUpdateMessage {
   buildId: number;
   reloadApp: boolean;
@@ -194,23 +186,6 @@ export interface DeepLinkPathInfo {
 export interface DeepLinkConfigEntry extends DeepLinkDecoratorAndClass, DeepLinkPathInfo {
 }
 
-export interface AppNgModuleInfo {
-  absolutePath: string;
-  className: string;
-}
-
-export interface CodegenOptions {
-  angularCompilerOptions: any;
-  cliOptions: any;
-  program: Program;
-  compilerHost: CompilerHost;
-  compilerOptions: CompilerOptions;
-}
-
-export interface TreeShakeCalcResults {
-  updatedDependencyMap: Map<string, Set<string>>;
-  purgedModules: Map<string, Set<string>>;
-}
 
 export interface WebpackStats {
   modules: WebpackModule[];
@@ -224,13 +199,6 @@ export interface WebpackModule {
 export interface WebpackDependency {
   moduleIdentifier: string;
 }
-
-export interface MagicString {
-  overwrite(startIndex: number, endIndex: number, newContent: string): void;
-  toString(): string;
-  prependLeft(index: number, contentToPrepend: string): string;
-}
-
 
 export interface CoreCompiler {
   bundle: {
@@ -249,6 +217,4 @@ export interface Packages {
   fs?: any;
   typescript?: any;
   nodeSass?: any;
-  rollup?: any;
-  uglify?: any;
 }

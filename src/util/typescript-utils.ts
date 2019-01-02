@@ -8,17 +8,6 @@ export function getTypescriptSourceFile(filePath: string, fileContent: string, l
   return createSourceFile(filePath, fileContent, languageVersion, setParentNodes);
 }
 
-export function removeDecorators(fileName: string, source: string): string {
-  const sourceFile = createSourceFile(fileName, source, ScriptTarget.Latest);
-  const decorators = findNodes(sourceFile, sourceFile, SyntaxKind.Decorator, true);
-  decorators.sort((a, b) => b.pos - a.pos);
-  decorators.forEach(d => {
-    source = source.slice(0, d.pos) + source.slice(d.end);
-  });
-
-  return source;
-}
-
 export function findNodes(sourceFile: SourceFile, node: Node, kind: SyntaxKind, keepGoing = false): Node[] {
   if (node.kind === kind && !keepGoing) {
     return [node];
@@ -37,14 +26,6 @@ export function replaceNode(filePath: string, fileContent: string, node: Node, r
   return modifiedContent;
 }
 
-export function removeNode(filePath: string, fileContent: string, node: Node) {
-  const sourceFile = getTypescriptSourceFile(filePath, fileContent, ScriptTarget.Latest, false);
-  const startIndex = node.getStart(sourceFile);
-  const endIndex = node.getEnd();
-  const modifiedContent = rangeReplace(fileContent, startIndex, endIndex, '');
-  return modifiedContent;
-}
-
 export function getNodeStringContent(sourceFile: SourceFile, node: Node) {
   return sourceFile.getFullText().substring(node.getStart(sourceFile), node.getEnd());
 }
@@ -55,11 +36,6 @@ export function appendAfter(source: string, node: Node, toAppend: string): strin
 
 export function appendEmpty(source: string, position: number, toAppend: string): string {
   return stringSplice(source, position, 0, toAppend);
-}
-
-export function appendBefore(filePath: string, fileContent: string, node: Node, toAppend: string): string {
-  const sourceFile = getTypescriptSourceFile(filePath, fileContent, ScriptTarget.Latest, false);
-  return stringSplice(fileContent, node.getStart(sourceFile), 0, toAppend);
 }
 
 export function insertNamedImportIfNeeded(filePath: string, fileContent: string, namedImport: string, fromModule: string) {
@@ -101,46 +77,6 @@ export function insertNamedImportIfNeeded(filePath: string, fileContent: string,
   }
 
   return fileContent;
-}
-
-export function replaceNamedImport(filePath: string, fileContent: string, namedImportOriginal: string, namedImportReplacement: string) {
-  const sourceFile = getTypescriptSourceFile(filePath, fileContent, ScriptTarget.Latest, false);
-  const allImports = findNodes(sourceFile, sourceFile, SyntaxKind.ImportDeclaration);
-  let modifiedContent = fileContent;
-  allImports.filter((node: ImportDeclaration) => {
-    if (node.importClause && node.importClause.namedBindings) {
-      return node.importClause.namedBindings.kind === SyntaxKind.NamedImports;
-    }
-  }).map((importDeclaration: ImportDeclaration) => {
-    return (importDeclaration.importClause as ImportClause).namedBindings as NamedImports;
-  }).forEach((namedImport: NamedImports) => {
-    return namedImport.elements.forEach((element: ImportSpecifier) => {
-      if (element.name.text === namedImportOriginal) {
-        modifiedContent = replaceNode(filePath, modifiedContent, element, namedImportReplacement);
-      }
-    });
-  });
-
-  return modifiedContent;
-}
-
-export function replaceImportModuleSpecifier(filePath: string, fileContent: string, moduleSpecifierOriginal: string, moduleSpecifierReplacement: string) {
-  const sourceFile = getTypescriptSourceFile(filePath, fileContent, ScriptTarget.Latest, false);
-  const allImports = findNodes(sourceFile, sourceFile, SyntaxKind.ImportDeclaration);
-  let modifiedContent = fileContent;
-  allImports.forEach((node: ImportDeclaration) => {
-    if (node.moduleSpecifier.kind === SyntaxKind.StringLiteral && (node.moduleSpecifier as StringLiteral).text === moduleSpecifierOriginal) {
-      modifiedContent = replaceNode(filePath, modifiedContent, node.moduleSpecifier, `'${moduleSpecifierReplacement}'`);
-    }
-  });
-  return modifiedContent;
-}
-
-export function checkIfFunctionIsCalled(filePath: string, fileContent: string, functionName: string) {
-  const sourceFile = getTypescriptSourceFile(filePath, fileContent, ScriptTarget.Latest, false);
-  const allCalls = findNodes(sourceFile, sourceFile, SyntaxKind.CallExpression, true) as CallExpression[];
-  const functionCallList = allCalls.filter(call => call.expression && call.expression.kind === SyntaxKind.Identifier && (call.expression as Identifier).text === functionName);
-  return functionCallList.length > 0;
 }
 
 export function getClassDeclarations(sourceFile: SourceFile) {

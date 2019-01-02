@@ -7,9 +7,8 @@ import * as buildUtils from './build/util';
 import * as bundle from './bundle';
 import * as copy from './copy';
 import * as clean from './clean';
-import * as lint from './lint';
-import * as minify from './minify';
-import * as ngc from './ngc';
+import * as deepLinking from './deep-linking';
+
 import * as postprocess from './postprocess';
 import * as preprocess from './preprocess';
 import * as sass from './sass';
@@ -33,36 +32,11 @@ describe('build', () => {
     spyOn(buildUtils, buildUtils.readVersionOfDependencies.name).and.returnValue(Promise.resolve());
     spyOn(bundle, bundle.bundle.name).and.returnValue(Promise.resolve());
     spyOn(copy, copy.copy.name).and.returnValue(Promise.resolve());
-    spyOn(minify, minify.minifyCss.name).and.returnValue(Promise.resolve());
-    spyOn(minify, minify.minifyJs.name).and.returnValue(Promise.resolve());
-    spyOn(lint, lint.lint.name).and.returnValue(Promise.resolve());
-    spyOn(ngc, ngc.ngc.name).and.returnValue(Promise.resolve());
+    spyOn(deepLinking, deepLinking.deepLinking.name).and.returnValue(Promise.resolve());
     spyOn(postprocess, postprocess.postprocess.name).and.returnValue(Promise.resolve());
     spyOn(preprocess, preprocess.preprocess.name).and.returnValue(Promise.resolve());
     spyOn(sass, sass.sass.name).and.returnValue(Promise.resolve());
     spyOn(transpile, transpile.transpile.name).and.returnValue(Promise.resolve());
-  });
-
-  it('should do a prod build', () => {
-    let context: BuildContext = {
-      isProd: true,
-      optimizeJs: true,
-      runMinifyJs: true,
-      runMinifyCss: true,
-      runAot: true
-    };
-
-    return build.build(context).then(() => {
-      expect(buildUtils.scanSrcTsFiles).toHaveBeenCalled();
-      expect(copy.copy).toHaveBeenCalled();
-      expect(ngc.ngc).toHaveBeenCalled();
-      expect(bundle.bundle).toHaveBeenCalled();
-      expect(minify.minifyJs).toHaveBeenCalled();
-      expect(sass.sass).toHaveBeenCalled();
-      expect(minify.minifyCss).toHaveBeenCalled();
-
-      expect(transpile.transpile).not.toHaveBeenCalled();
-    });
   });
 
   it('should do a dev build', () => {
@@ -74,41 +48,17 @@ describe('build', () => {
       runAot: false
     };
 
+    const getBooleanPropertyValueSpy = spyOn(helpers, helpers.getBooleanPropertyValue.name).and.returnValue(true);
+
     return build.build(context).then(() => {
       expect(buildUtils.scanSrcTsFiles).toHaveBeenCalled();
       expect(copy.copy).toHaveBeenCalled();
+      expect(deepLinking.deepLinking).toHaveBeenCalled();
       expect(transpile.transpile).toHaveBeenCalled();
       expect(bundle.bundle).toHaveBeenCalled();
       expect(sass.sass).toHaveBeenCalled();
       expect(postprocess.postprocess).toHaveBeenCalled();
       expect(preprocess.preprocess).toHaveBeenCalled();
-      expect(ngc.ngc).not.toHaveBeenCalled();
-      expect(minify.minifyJs).not.toHaveBeenCalled();
-      expect(minify.minifyCss).not.toHaveBeenCalled();
-    });
-  });
-
-  it('should skip lint', () => {
-    let context: BuildContext = {
-      isProd: false,
-      optimizeJs: false,
-      runMinifyJs: false,
-      runMinifyCss: false,
-      runAot: false
-    };
-
-    return build.build(context).then(() => {
-      expect(buildUtils.scanSrcTsFiles).toHaveBeenCalled();
-      expect(copy.copy).toHaveBeenCalled();
-      expect(transpile.transpile).toHaveBeenCalled();
-      expect(bundle.bundle).toHaveBeenCalled();
-      expect(sass.sass).toHaveBeenCalled();
-      expect(lint.lint).not.toHaveBeenCalled();
-      expect(postprocess.postprocess).toHaveBeenCalled();
-      expect(preprocess.preprocess).toHaveBeenCalled();
-      expect(ngc.ngc).not.toHaveBeenCalled();
-      expect(minify.minifyJs).not.toHaveBeenCalled();
-      expect(minify.minifyCss).not.toHaveBeenCalled();
     });
   });
 });

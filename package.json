@@ -1,6 +1,6 @@
 {
   "name": "@ionic/app-scripts-tiny",
-  "version": "3.2.1",
+  "version": "3.2.1-tiny.0",
   "description": "Scripts for Ionic Projects",
   "publishConfig": {
     "registry": "https://maven.dev.powwowinc.net/repository/npm-powwow"
@@ -17,18 +17,18 @@
     "README.md"
   ],
   "bin": {
-    "ionic-app-scripts-tiny": "./bin/ionic-app-scripts-tiny.js"
+    "ionic-app-scripts-tiny": "bin/ionic-app-scripts-tiny.js"
   },
   "scripts": {
     "build": "npm run clean && tsc",
-    "build-and-test": "jest",
+    "build-and-test": "npm run build && npm run test",
     "changelog": "./node_modules/.bin/conventional-changelog -p angular -i CHANGELOG.md -s",
     "clean": "rimraf ./dist",
     "github-release": "node ./scripts/create-github-release.js",
     "lint": "tslint -c ./tslint.json --project ./tsconfig.json --type-check -t stylish",
     "nightly": "npm run build && node ./scripts/publish-nightly.js",
     "test": "jest --coverage",
-    "watch": "npm run clean && tsc --watch & npm run sass-watch"
+    "watch": "npm run clean && tsc --watch"
   },
   "main": "dist/index.js",
   "dependencies": {
