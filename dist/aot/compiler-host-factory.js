@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-var compiler_host_1 = require("./compiler-host");
 var hybrid_file_system_factory_1 = require("../util/hybrid-file-system-factory");
+var compiler_host_1 = require("./compiler-host");
 var instance = null;
 function getInMemoryCompilerHostInstance(options) {
     if (!instance) {

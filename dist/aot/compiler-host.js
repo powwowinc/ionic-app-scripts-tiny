@@ -2,8 +2,8 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 var path_1 = require("path");
 var typescript_1 = require("typescript");
-var typescript_utils_1 = require("../util/typescript-utils");
 var logger_1 = require("../logger/logger");
+var typescript_utils_1 = require("../util/typescript-utils");
 var InMemoryCompilerHost = (function () {
     function InMemoryCompilerHost(options, fileSystem, setParentNodes) {
         if (setParentNodes === void 0) { setParentNodes = true; }

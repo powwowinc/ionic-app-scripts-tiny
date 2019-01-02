@@ -1,11 +1,11 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-var helpers_1 = require("../util/helpers");
-var highlight_1 = require("../highlight/highlight");
-var path_1 = require("path");
-var logger_1 = require("./logger");
-var fs_1 = require("fs");
 var chalk = require("chalk");
+var fs_1 = require("fs");
+var path_1 = require("path");
+var highlight_1 = require("../highlight/highlight");
+var helpers_1 = require("../util/helpers");
+var logger_1 = require("./logger");
 function printDiagnostics(context, diagnosticsType, diagnostics, consoleLogDiagnostics, writeHtmlDiagnostics) {
     if (diagnostics && diagnostics.length) {
         process.send({ event: 'BUILD_ERROR', data: diagnostics });

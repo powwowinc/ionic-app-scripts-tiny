@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-var path_1 = require("path");
 var globFunction = require("glob");
+var path_1 = require("path");
 var helpers_1 = require("./helpers");
 function isNegative(pattern) {
     return pattern[0] === '!';

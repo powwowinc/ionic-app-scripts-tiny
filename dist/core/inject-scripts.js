@@ -1,8 +1,8 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-var ionic_global_1 = require("./ionic-global");
-var helpers_1 = require("../util/helpers");
 var path_1 = require("path");
+var helpers_1 = require("../util/helpers");
+var ionic_global_1 = require("./ionic-global");
 function updateIndexHtml(context) {
     var indexPath = path_1.join(context.wwwDir, context.wwwIndex);
     return helpers_1.readFileAsync(indexPath).then(function (indexHtml) {

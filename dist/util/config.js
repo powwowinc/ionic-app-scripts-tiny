@@ -1,11 +1,11 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-var path_1 = require("path");
 var fs_extra_1 = require("fs-extra");
+var path_1 = require("path");
 var logger_1 = require("../logger/logger");
-var helpers_1 = require("./helpers");
-var file_cache_1 = require("./file-cache");
 var Constants = require("./constants");
+var file_cache_1 = require("./file-cache");
+var helpers_1 = require("./helpers");
 /**
  * Create a context object which is used by all the build tasks.
  * Filling the config data uses the following hierarchy, which will

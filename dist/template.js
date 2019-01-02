@@ -2,10 +2,10 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 var fs_1 = require("fs");
 var path_1 = require("path");
-var Constants = require("./util/constants");
-var interfaces_1 = require("./util/interfaces");
-var helpers_1 = require("./util/helpers");
 var logger_1 = require("./logger/logger");
+var Constants = require("./util/constants");
+var helpers_1 = require("./util/helpers");
+var interfaces_1 = require("./util/interfaces");
 function templateUpdate(changedFiles, context) {
     try {
         var changedTemplates = changedFiles.filter(function (changedFile) { return changedFile.ext === '.html'; });

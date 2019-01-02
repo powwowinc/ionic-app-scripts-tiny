@@ -1,9 +1,9 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-var highlight_1 = require("../highlight/highlight");
-var logger_1 = require("./logger");
 var fs_1 = require("fs");
+var highlight_1 = require("../highlight/highlight");
 var helpers_1 = require("../util/helpers");
+var logger_1 = require("./logger");
 function runSassDiagnostics(context, sassError) {
     if (!sassError) {
         return [];

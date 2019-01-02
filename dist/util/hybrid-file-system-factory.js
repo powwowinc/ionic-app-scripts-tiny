@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-var hybrid_file_system_1 = require("./hybrid-file-system");
 var helpers_1 = require("./helpers");
+var hybrid_file_system_1 = require("./hybrid-file-system");
 var instance = null;
 function getInstance(writeToDisk) {
     if (!instance) {

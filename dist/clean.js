@@ -1,8 +1,8 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-var errors_1 = require("./util/errors");
 var fs_extra_1 = require("fs-extra");
 var logger_1 = require("./logger/logger");
+var errors_1 = require("./util/errors");
 function clean(context) {
     return new Promise(function (resolve, reject) {
         var logger = new logger_1.Logger('clean');

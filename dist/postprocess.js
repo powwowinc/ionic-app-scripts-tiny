@@ -1,11 +1,11 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-var path_1 = require("path");
 var fs_extra_1 = require("fs-extra");
+var path_1 = require("path");
+var inject_scripts_1 = require("./core/inject-scripts");
 var logger_1 = require("./logger/logger");
 var Constants = require("./util/constants");
 var helpers_1 = require("./util/helpers");
-var inject_scripts_1 = require("./core/inject-scripts");
 var source_maps_1 = require("./util/source-maps");
 function postprocess(context) {
     var logger = new logger_1.Logger("postprocess");

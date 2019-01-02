@@ -1,9 +1,9 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-var logger_1 = require("./logger");
+var ts = require("typescript");
 var highlight_1 = require("../highlight/highlight");
 var helpers_1 = require("../util/helpers");
-var ts = require("typescript");
+var logger_1 = require("./logger");
 /**
  * Ok, so formatting overkill, we know. But whatever, it makes for great
  * error reporting within a terminal. So, yeah, let's code it up, shall we?
