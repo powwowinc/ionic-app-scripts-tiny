@@ -1,6 +1,6 @@
 import { CompilerOptions } from 'typescript';
-import { InMemoryCompilerHost } from './compiler-host';
 import { getInstance as getFileSystemInstance } from '../util/hybrid-file-system-factory';
+import { InMemoryCompilerHost } from './compiler-host';
 
 let instance: InMemoryCompilerHost = null;
 

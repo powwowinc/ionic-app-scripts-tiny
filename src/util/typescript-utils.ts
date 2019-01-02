@@ -1,26 +1,6 @@
 import * as path from 'path';
 
-import {
-  CallExpression,
-  ClassDeclaration,
-  Decorator,
-  Identifier,
-  ImportClause,
-  ImportDeclaration,
-  ImportSpecifier,
-  NamedImports,
-  Node,
-  NodeArray,
-  ObjectLiteralElement, // tslint:disable-line: no-unused-variable
-  ObjectLiteralExpression,
-  PropertyAssignment,
-  ArrayLiteralExpression,
-  ScriptTarget,
-  SourceFile,
-  StringLiteral,
-  SyntaxKind,
-  createSourceFile,
-} from 'typescript';
+import { ArrayLiteralExpression, CallExpression, ClassDeclaration, createSourceFile, Decorator, Identifier, ImportClause, ImportDeclaration, ImportSpecifier, NamedImports, Node, NodeArray, ObjectLiteralElement, ObjectLiteralExpression, PropertyAssignment, ScriptTarget, SourceFile, StringLiteral, SyntaxKind } from 'typescript';
 
 import { rangeReplace, stringSplice } from './helpers';
 

@@ -1,9 +1,9 @@
-import { BuildContext, Diagnostic, PrintLine } from '../util/interfaces';
-import { highlight } from '../highlight/highlight';
-import { Logger } from './logger';
 import { readFileSync } from 'fs';
 import { SassError } from 'node-sass';
+import { highlight } from '../highlight/highlight';
 import { splitLineBreaks } from '../util/helpers';
+import { BuildContext, Diagnostic, PrintLine } from '../util/interfaces';
+import { Logger } from './logger';
 
 
 export function runSassDiagnostics(context: BuildContext, sassError: SassError) {

@@ -1,10 +1,10 @@
-import { BuildContext, Diagnostic, PrintLine } from '../util/interfaces';
-import { escapeHtml, titleCase } from '../util/helpers';
-import { highlightError } from '../highlight/highlight';
-import { join } from 'path';
-import { Logger } from './logger';
-import { readFileSync, unlinkSync, writeFileSync } from 'fs';
 import * as chalk from 'chalk';
+import { readFileSync, unlinkSync, writeFileSync } from 'fs';
+import { join } from 'path';
+import { highlightError } from '../highlight/highlight';
+import { escapeHtml, titleCase } from '../util/helpers';
+import { BuildContext, Diagnostic, PrintLine } from '../util/interfaces';
+import { Logger } from './logger';
 
 
 export function printDiagnostics(context: BuildContext, diagnosticsType: string, diagnostics: Diagnostic[], consoleLogDiagnostics: boolean, writeHtmlDiagnostics: boolean) {

@@ -1,8 +1,8 @@
-import { BuildContext, Diagnostic, PrintLine } from '../util/interfaces';
-import { Logger } from './logger';
+import * as ts from 'typescript';
 import { highlight } from '../highlight/highlight';
 import { splitLineBreaks } from '../util/helpers';
-import * as ts from 'typescript';
+import { BuildContext, Diagnostic, PrintLine } from '../util/interfaces';
+import { Logger } from './logger';
 
 
 /**

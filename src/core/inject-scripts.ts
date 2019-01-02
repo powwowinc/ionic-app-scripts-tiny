@@ -1,7 +1,7 @@
+import { join } from 'path';
+import { readFileAsync, writeFileAsync } from '../util/helpers';
 import { BuildContext } from '../util/interfaces';
 import { buildIonicGlobal } from './ionic-global';
-import { readFileAsync, writeFileAsync } from '../util/helpers';
-import { join } from 'path';
 
 
 export function updateIndexHtml(context: BuildContext) {

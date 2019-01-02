@@ -1,11 +1,11 @@
-import { join, resolve } from 'path';
 import { accessSync, readJSONSync, statSync } from 'fs-extra';
+import { join, resolve } from 'path';
 
 import { Logger } from '../logger/logger';
-import { BuildContext, TaskInfo } from './interfaces';
-import { getBooleanPropertyValue, objectAssign } from './helpers';
-import { FileCache } from './file-cache';
 import * as Constants from './constants';
+import { FileCache } from './file-cache';
+import { getBooleanPropertyValue, objectAssign } from './helpers';
+import { BuildContext, TaskInfo } from './interfaces';
 
 /**
  * Create a context object which is used by all the build tasks.
