@@ -1,8 +1,8 @@
 import { normalize } from 'path';
 import { CancellationToken, CompilerHost, CompilerOptions, createCompilerHost, ScriptTarget, SourceFile } from 'typescript';
+import { Logger } from '../logger/logger';
 import { VirtualFileSystem } from '../util/interfaces';
 import { getTypescriptSourceFile } from '../util/typescript-utils';
-import { Logger } from '../logger/logger';
 
 export interface OnErrorFn {
   (message: string): void;

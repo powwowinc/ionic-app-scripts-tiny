@@ -1,15 +1,15 @@
 import { randomBytes } from 'crypto';
-import { basename, dirname, extname, join } from 'path';
-import { createReadStream, createWriteStream, ensureDir, readdir, readFile, readFileSync, readJson, readJsonSync, remove, unlink, writeFile } from 'fs-extra';
+import { createReadStream, createWriteStream, ensureDir, readdir, readFile, readJson, readJsonSync, remove, unlink, writeFile } from 'fs-extra';
 import * as osName from 'os-name';
+import { basename, dirname, extname, join } from 'path';
+import { Logger } from '../logger/logger';
 
 import * as Constants from './constants';
 import { BuildError } from './errors';
-import { BuildContext, DeepLinkConfigEntry, File, WebpackStats, SemverVersion } from './interfaces';
-import { Logger } from '../logger/logger';
 import { CAMEL_CASE_REGEXP } from './helpers/camel-case-regexp';
 import { CAMEL_CASE_UPPER_REGEXP } from './helpers/camel-case-upper-regexp';
 import { NON_WORD_REGEXP } from './helpers/non-word-regexp';
+import { BuildContext, DeepLinkConfigEntry, SemverVersion, WebpackStats } from './interfaces';
 
 let _context: BuildContext;
 let _deepLinkConfigEntriesMap: Map<string, DeepLinkConfigEntry>;

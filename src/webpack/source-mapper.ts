@@ -1,7 +1,7 @@
-import { BuildContext } from '../util/interfaces';
-import { getContext, toUnixPath} from '../util/helpers';
 import { join, normalize, relative, resolve, sep } from 'path';
-import { SOURCE_MAP_TYPE_CHEAP, ENV_VAR_SOURCE_MAP_TYPE } from '../util/constants';
+import { ENV_VAR_SOURCE_MAP_TYPE, SOURCE_MAP_TYPE_CHEAP } from '../util/constants';
+import { getContext, toUnixPath } from '../util/helpers';
+import { BuildContext } from '../util/interfaces';
 
 export function provideCorrectSourcePath(webpackObj: any) {
   const context = getContext();

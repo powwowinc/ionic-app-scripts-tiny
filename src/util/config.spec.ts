@@ -75,7 +75,6 @@ describe('config', () => {
       expect(context.rootDir).toEqual(process.cwd());
       expect(context.tmpDir).toEqual(join(process.cwd(), Constants.TMP_DIR));
       expect(context.srcDir).toEqual(join(process.cwd(), Constants.SRC_DIR));
-      expect(fakeConfig[Constants.ENV_VAR_DEEPLINKS_DIR]).toEqual(context.srcDir);
       expect(context.wwwDir).toEqual(join(process.cwd(), Constants.WWW_DIR));
       expect(context.wwwIndex).toEqual('index.html');
       expect(context.buildDir).toEqual(join(process.cwd(), Constants.WWW_DIR, Constants.BUILD_DIR));
@@ -164,7 +163,6 @@ describe('config', () => {
       expect(fakeConfig[Constants.ENV_TOAST_COMPONENT_PATH]).toEqual(join(context.ionicAngularDir, 'components', 'toast', 'toast-component.js'));
       expect(fakeConfig[Constants.ENV_TOAST_COMPONENT_FACTORY_PATH]).toEqual(join(context.ionicAngularDir, 'components', 'toast', 'toast-component.ngfactory.js'));
 
-      expect(fakeConfig[Constants.ENV_PARSE_DEEPLINKS]).toBeTruthy();
       expect(fakeConfig[Constants.ENV_SKIP_IONIC_ANGULAR_VERSION]).toEqual('false');
       expect(context.bundler).toEqual('webpack');
     });

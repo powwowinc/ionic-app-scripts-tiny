@@ -7,7 +7,6 @@ import * as buildUtils from './build/util';
 import * as bundle from './bundle';
 import * as copy from './copy';
 import * as clean from './clean';
-import * as deepLinking from './deep-linking';
 import * as lint from './lint';
 import * as minify from './minify';
 import * as ngc from './ngc';
@@ -34,7 +33,6 @@ describe('build', () => {
     spyOn(buildUtils, buildUtils.readVersionOfDependencies.name).and.returnValue(Promise.resolve());
     spyOn(bundle, bundle.bundle.name).and.returnValue(Promise.resolve());
     spyOn(copy, copy.copy.name).and.returnValue(Promise.resolve());
-    spyOn(deepLinking, deepLinking.deepLinking.name).and.returnValue(Promise.resolve());
     spyOn(minify, minify.minifyCss.name).and.returnValue(Promise.resolve());
     spyOn(minify, minify.minifyJs.name).and.returnValue(Promise.resolve());
     spyOn(lint, lint.lint.name).and.returnValue(Promise.resolve());
@@ -54,19 +52,14 @@ describe('build', () => {
       runAot: true
     };
 
-    const getBooleanPropertyValueSpy = spyOn(helpers, helpers.getBooleanPropertyValue.name).and.returnValue(true);
-
     return build.build(context).then(() => {
       expect(buildUtils.scanSrcTsFiles).toHaveBeenCalled();
       expect(copy.copy).toHaveBeenCalled();
-      expect(deepLinking.deepLinking).toHaveBeenCalled();
       expect(ngc.ngc).toHaveBeenCalled();
       expect(bundle.bundle).toHaveBeenCalled();
       expect(minify.minifyJs).toHaveBeenCalled();
       expect(sass.sass).toHaveBeenCalled();
       expect(minify.minifyCss).toHaveBeenCalled();
-      expect(lint.lint).toHaveBeenCalled();
-      expect(getBooleanPropertyValueSpy.calls.all()[1].args[0]).toEqual(Constants.ENV_ENABLE_LINT);
 
       expect(transpile.transpile).not.toHaveBeenCalled();
     });
@@ -81,17 +74,12 @@ describe('build', () => {
       runAot: false
     };
 
-    const getBooleanPropertyValueSpy = spyOn(helpers, helpers.getBooleanPropertyValue.name).and.returnValue(true);
-
     return build.build(context).then(() => {
       expect(buildUtils.scanSrcTsFiles).toHaveBeenCalled();
       expect(copy.copy).toHaveBeenCalled();
-      expect(deepLinking.deepLinking).toHaveBeenCalled();
       expect(transpile.transpile).toHaveBeenCalled();
       expect(bundle.bundle).toHaveBeenCalled();
       expect(sass.sass).toHaveBeenCalled();
-      expect(lint.lint).toHaveBeenCalled();
-      expect(getBooleanPropertyValueSpy.calls.all()[1].args[0]).toEqual(Constants.ENV_ENABLE_LINT);
       expect(postprocess.postprocess).toHaveBeenCalled();
       expect(preprocess.preprocess).toHaveBeenCalled();
       expect(ngc.ngc).not.toHaveBeenCalled();
@@ -109,8 +97,6 @@ describe('build', () => {
       runAot: false
     };
 
-    const getBooleanPropertyValueSpy = spyOn(helpers, helpers.getBooleanPropertyValue.name).and.returnValue(false);
-
     return build.build(context).then(() => {
       expect(buildUtils.scanSrcTsFiles).toHaveBeenCalled();
       expect(copy.copy).toHaveBeenCalled();
@@ -118,7 +104,6 @@ describe('build', () => {
       expect(bundle.bundle).toHaveBeenCalled();
       expect(sass.sass).toHaveBeenCalled();
       expect(lint.lint).not.toHaveBeenCalled();
-      expect(getBooleanPropertyValueSpy.calls.all()[1].args[0]).toEqual(Constants.ENV_ENABLE_LINT);
       expect(postprocess.postprocess).toHaveBeenCalled();
       expect(preprocess.preprocess).toHaveBeenCalled();
       expect(ngc.ngc).not.toHaveBeenCalled();

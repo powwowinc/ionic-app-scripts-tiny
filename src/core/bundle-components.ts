@@ -1,12 +1,9 @@
-import { BuildContext, CoreCompiler } from '../util/interfaces';
-import { Logger } from '../logger/logger';
 import * as fs from 'fs';
-import * as path from 'path';
 import * as nodeSass from 'node-sass';
-import * as rollup from 'rollup';
+import * as path from 'path';
 import * as typescript from 'typescript';
-import * as uglify from 'uglify-es';
-import * as cleanCss from 'clean-css';
+import { Logger } from '../logger/logger';
+import { BuildContext, CoreCompiler } from '../util/interfaces';
 
 
 export function bundleCoreComponents(context: BuildContext) {
@@ -22,13 +19,13 @@ export function bundleCoreComponents(context: BuildContext) {
     destDir: context.buildDir,
     attrCase: 'lower',
     packages: {
-      cleanCss: cleanCss,
+      // cleanCss: cleanCss,
       fs: fs,
       path: path,
       nodeSass: nodeSass,
-      rollup: rollup,
+      // rollup: rollup,
       typescript: typescript,
-      uglify: uglify
+      // uglify: uglify
     },
     watch: context.isWatch
   };

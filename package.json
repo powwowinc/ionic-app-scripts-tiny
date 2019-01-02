@@ -1,7 +1,10 @@
 {
-  "name": "@ionic/app-scripts",
+  "name": "@ionic/app-scripts-tiny",
   "version": "3.2.1",
   "description": "Scripts for Ionic Projects",
+  "publishConfig": {
+    "registry": "https://maven.dev.powwowinc.net/repository/npm-powwow"
+  },
   "homepage": "https://ionicframework.com/",
   "author": "Ionic Team <hi@ionic.io> (https://ionic.io)",
   "license": "MIT",
@@ -14,19 +17,17 @@
     "README.md"
   ],
   "bin": {
-    "ionic-app-scripts": "./bin/ionic-app-scripts.js"
+    "ionic-app-scripts-tiny": "./bin/ionic-app-scripts-tiny.js"
   },
   "scripts": {
-    "build": "npm run clean && tsc && npm run sass",
+    "build": "npm run clean && tsc",
     "build-and-test": "jest",
     "changelog": "./node_modules/.bin/conventional-changelog -p angular -i CHANGELOG.md -s",
     "clean": "rimraf ./dist",
     "github-release": "node ./scripts/create-github-release.js",
     "lint": "tslint -c ./tslint.json --project ./tsconfig.json --type-check -t stylish",
     "nightly": "npm run build && node ./scripts/publish-nightly.js",
-    "sass": "node-sass ./src/dev-client/sass/ion-dev.scss --output ./bin/ --output-style compressed",
-    "sass-watch": "npm run sass && node-sass ./src/dev-client/sass/ion-dev.scss --watch --output ./bin/ --output-style compressed",
-    "test": "jest",
+    "test": "jest --coverage",
     "watch": "npm run clean && tsc --watch & npm run sass-watch"
   },
   "main": "dist/index.js",
@@ -97,10 +98,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/ionic-team/ionic-app-scripts.git"
-  },
-  "bugs": {
-    "url": "https://github.com/ionic-team/ionic-app-scripts/issues"
+    "url": "https://github.com/powwowinc/ionic-app-scripts-tiny"
   },
   "config": {
     "commitizen": {

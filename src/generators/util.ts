@@ -1,15 +1,13 @@
+import { existsSync, readdirSync, writeFileSync } from 'fs';
 import { basename, dirname, extname, join, relative, sep } from 'path';
-import { readdirSync, existsSync, writeFileSync, openSync, closeSync } from 'fs';
 import { Logger } from '../logger/logger';
-import { toUnixPath } from '../util/helpers';
 
 import * as Constants from '../util/constants';
-import * as GeneratorConstants from './constants';
-import { camelCase, constantCase, getStringPropertyValue, mkDirpAsync, paramCase, pascalCase, readFileAsync, replaceAll, sentenceCase, upperCaseFirst, writeFileAsync } from '../util/helpers';
-import { BuildContext } from '../util/interfaces';
 import { globAll, GlobResult } from '../util/glob-util';
-import { changeExtension, ensureSuffix, removeSuffix } from '../util/helpers';
+import { camelCase, changeExtension, constantCase, ensureSuffix, getStringPropertyValue, mkDirpAsync, paramCase, pascalCase, readFileAsync, removeSuffix, replaceAll, sentenceCase, toUnixPath, upperCaseFirst, writeFileAsync } from '../util/helpers';
+import { BuildContext } from '../util/interfaces';
 import { appendNgModuleDeclaration, appendNgModuleExports, appendNgModuleProvider, insertNamedImportIfNeeded } from '../util/typescript-utils';
+import * as GeneratorConstants from './constants';
 
 export function hydrateRequest(context: BuildContext, request: GeneratorRequest) {
   const hydrated = request as HydratedGeneratorRequest;

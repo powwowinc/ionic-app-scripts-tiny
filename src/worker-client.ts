@@ -1,9 +1,9 @@
-import { BuildContext, WorkerProcess, WorkerMessage } from './util/interfaces';
+import { ChildProcess, fork } from 'child_process';
+import { join } from 'path';
+import { Logger } from './logger/logger';
 import { BuildError } from './util/errors';
 import { jsonToBuildError } from './util/helpers';
-import { Logger } from './logger/logger';
-import { fork, ChildProcess } from 'child_process';
-import { join } from 'path';
+import { BuildContext, WorkerMessage, WorkerProcess } from './util/interfaces';
 
 
 export function runWorker(taskModule: string, taskWorker: string, context: BuildContext, workerConfig: any) {

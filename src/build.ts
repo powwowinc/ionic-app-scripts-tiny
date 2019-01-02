@@ -1,27 +1,18 @@
-import { join } from 'path';
-
-import {
-  readVersionOfDependencies,
-  scanSrcTsFiles,
-  validateRequiredFilesExist,
-  validateTsConfigSettings
-} from './build/util';
+import { readVersionOfDependencies, scanSrcTsFiles, validateRequiredFilesExist, validateTsConfigSettings } from './build/util';
 
 
-import { bundle, bundleUpdate } from './bundle';
+import { bundle } from './bundle';
 import { clean } from './clean';
 import { copy } from './copy';
-import { deepLinking, deepLinkingUpdate } from './deep-linking';
 import { lint, lintUpdate } from './lint';
 import { Logger } from './logger/logger';
 import { minifyCss, minifyJs } from './minify';
 import { ngc } from './ngc';
-import { getTsConfigAsync, TsConfig } from './transpile';
 import { postprocess } from './postprocess';
-import { preprocess, preprocessUpdate } from './preprocess';
+import { preprocess } from './preprocess';
 import { sass, sassUpdate } from './sass';
 import { templateUpdate } from './template';
-import { transpile, transpileUpdate, transpileDiagnosticsOnly } from './transpile';
+import { transpile } from './transpile';
 import * as Constants from './util/constants';
 import { BuildError } from './util/errors';
 import { emit, EventType } from './util/events';
@@ -63,11 +54,11 @@ function buildProject(context: BuildContext) {
   const copyPromise = copy(context);
 
   return scanSrcTsFiles(context)
-    .then(() => {
-      if (getBooleanPropertyValue(Constants.ENV_PARSE_DEEPLINKS)) {
-        return deepLinking(context);
-      }
-    })
+    // .then(() => {
+    //   if (getBooleanPropertyValue(Constants.ENV_PARSE_DEEPLINKS)) {
+    //     return deepLinking(context);
+    //   }
+    // })
     .then(() => {
       const compilePromise = (context.runAot) ? ngc(context) : transpile(context);
       return compilePromise;
@@ -195,12 +186,12 @@ function buildUpdateTasks(changedFiles: ChangedFile[], context: BuildContext) {
   };
 
   return loadFiles(changedFiles, context)
-    .then(() => {
-      // DEEP LINKING
-      if (getBooleanPropertyValue(Constants.ENV_PARSE_DEEPLINKS)) {
-        return deepLinkingUpdate(changedFiles, context);
-      }
-    })
+    // .then(() => {
+    //   // DEEP LINKING
+    //   if (getBooleanPropertyValue(Constants.ENV_PARSE_DEEPLINKS)) {
+    //     return deepLinkingUpdate(changedFiles, context);
+    //   }
+    // })
     .then(() => {
       // TEMPLATE
       if (context.templateState === BuildState.RequiresUpdate) {
@@ -218,7 +209,9 @@ function buildUpdateTasks(changedFiles: ChangedFile[], context: BuildContext) {
         // we've already had a successful transpile once, only do an update
         // not that we've also already started a transpile diagnostics only
         // build that only needs to be completed by the end of buildUpdate
-        return transpileUpdate(changedFiles, context);
+
+        throw 'transpileUpdate';
+        // return transpileUpdate(changedFiles, context);
 
       } else if (context.transpileState === BuildState.RequiresBuild) {
         // run the whole transpile
@@ -231,14 +224,16 @@ function buildUpdateTasks(changedFiles: ChangedFile[], context: BuildContext) {
     })
     .then(() => {
       // PREPROCESS
-      return preprocessUpdate(changedFiles, context);
+      throw 'preprocessUpdate';
+      // return preprocessUpdate(changedFiles, context);
     })
     .then(() => {
       // BUNDLE
       if (context.bundleState === BuildState.RequiresUpdate) {
         // we need to do a bundle update
-        resolveValue.requiresAppReload = true;
-        return bundleUpdate(changedFiles, context);
+        // resolveValue.requiresAppReload = true;
+        throw 'bundleUpdate';
+        // return bundleUpdate(changedFiles, context);
 
       } else if (context.bundleState === BuildState.RequiresBuild) {
         // we need to do a full bundle build
@@ -321,7 +316,8 @@ function buildUpdateParallelTasks(changedFiles: ChangedFile[], context: BuildCon
   const parallelTasks: Promise<any>[] = [];
 
   if (context.transpileState === BuildState.RequiresUpdate) {
-    parallelTasks.push(transpileDiagnosticsOnly(context));
+    throw 'transpileDiagnosticsOnly';
+    // parallelTasks.push(transpileDiagnosticsOnly(context));
   }
 
   return Promise.all(parallelTasks);

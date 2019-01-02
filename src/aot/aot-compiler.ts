@@ -1,32 +1,21 @@
-import { readFileSync } from 'fs-extra';
-import { extname, normalize, resolve } from 'path';
+import { extname } from 'path';
 
 import 'reflect-metadata';
 
-import {
-  CompilerHost,
-  CompilerOptions,
-  DiagnosticCategory,
-  ParsedCommandLine,
-  Program,
-  transpileModule,
-  TranspileOptions,
-  TranspileOutput,
-  createProgram
-} from 'typescript';
-
-import { HybridFileSystem } from '../util/hybrid-file-system';
-import { getInstance as getHybridFileSystem } from '../util/hybrid-file-system-factory';
-import { getInMemoryCompilerHostInstance } from './compiler-host-factory';
-import { InMemoryCompilerHost } from './compiler-host';
-import { getFallbackMainContent, replaceBootstrapImpl } from './utils';
+import { CompilerHost, CompilerOptions, createProgram, Program, transpileModule, TranspileOptions, TranspileOutput } from 'typescript';
 import { Logger } from '../logger/logger';
-import { printDiagnostics, clearDiagnostics, DiagnosticsType } from '../logger/logger-diagnostics';
+import { clearDiagnostics, DiagnosticsType, printDiagnostics } from '../logger/logger-diagnostics';
 import { runTypeScriptDiagnostics } from '../logger/logger-typescript';
 import { getTsConfig, TsConfig } from '../transpile';
 import { BuildError } from '../util/errors';
 import { changeExtension, readFileAsync } from '../util/helpers';
+
+import { HybridFileSystem } from '../util/hybrid-file-system';
+import { getInstance as getHybridFileSystem } from '../util/hybrid-file-system-factory';
 import { BuildContext, CodegenOptions, File, SemverVersion } from '../util/interfaces';
+import { InMemoryCompilerHost } from './compiler-host';
+import { getInMemoryCompilerHostInstance } from './compiler-host-factory';
+import { getFallbackMainContent, replaceBootstrapImpl } from './utils';
 
 export async function runAot(context: BuildContext, options: AotOptions) {
   const tsConfig = getTsConfig(context);

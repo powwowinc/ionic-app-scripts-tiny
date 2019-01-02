@@ -1,7 +1,7 @@
 import { Configuration, Linter, LintResult } from 'tslint';
-import { Program, getPreEmitDiagnostics, Diagnostic } from 'typescript';
-import { BuildContext } from '../util/interfaces';
+import { Diagnostic, getPreEmitDiagnostics, Program } from 'typescript';
 import { isObject } from 'util';
+import { BuildContext } from '../util/interfaces';
 
 
 export interface LinterOptions {

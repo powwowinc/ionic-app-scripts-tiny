@@ -1,7 +1,7 @@
-import { BuildContext } from './util/interfaces';
-import { BuildError } from './util/errors';
 import { emptyDirSync } from 'fs-extra';
 import { Logger } from './logger/logger';
+import { BuildError } from './util/errors';
+import { BuildContext } from './util/interfaces';
 
 
 export function clean(context: BuildContext) {

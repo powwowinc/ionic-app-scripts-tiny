@@ -1,13 +1,13 @@
 import { access } from 'fs';
 import { join } from 'path';
+import { createProgram, getFileNames } from './lint/lint-factory';
 
 import { lintFiles } from './lint/lint-utils';
-import { createProgram, getFileNames } from './lint/lint-factory';
 import { Logger } from './logger/logger';
+import { getTsConfigPath } from './transpile';
 import { getUserConfigFile } from './util/config';
 import { ENV_BAIL_ON_LINT_ERROR, ENV_TYPE_CHECK_ON_LINT } from './util/constants';
 import { getBooleanPropertyValue } from './util/helpers';
-import { getTsConfigPath } from './transpile';
 import { BuildContext, ChangedFile, TaskInfo } from './util/interfaces';
 import { runWorker } from './worker-client';
 

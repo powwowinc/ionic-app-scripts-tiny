@@ -3,9 +3,9 @@ import { join } from 'path';
 import { getTsConfigAsync, TsConfig } from '../transpile';
 import * as Constants from '../util/constants';
 import { BuildError } from '../util/errors';
-import { GlobResult, globAll } from '../util/glob-util';
+import { globAll, GlobResult } from '../util/glob-util';
 import { getBooleanPropertyValue, getStringPropertyValue, readFileAsync, readJsonAsync, semverStringToObject } from '../util/helpers';
-import { BuildContext, } from '../util/interfaces';
+import { BuildContext } from '../util/interfaces';
 
 export function scanSrcTsFiles(context: BuildContext) {
   const srcGlob = join(context.srcDir, '**', '*.ts');

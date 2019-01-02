@@ -1,5 +1,5 @@
-import { HybridFileSystem } from './hybrid-file-system';
 import { getContext } from './helpers';
+import { HybridFileSystem } from './hybrid-file-system';
 
 let instance: HybridFileSystem = null;
 

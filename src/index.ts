@@ -1,8 +1,8 @@
 export { build } from './build';
-export { bundle, bundleUpdate } from './bundle';
+export { bundle } from './bundle';
 export { clean } from './clean';
 export { cleancss } from './cleancss';
-export { copy, copyUpdate } from './copy';
+export { copy } from './copy';
 export { lint } from './lint';
 export { minify } from './minify';
 export { ngc } from './ngc';
@@ -17,15 +17,15 @@ export * from './util/interfaces';
 export * from './util/constants';
 export * from './generators';
 
-export { getDeepLinkData } from './deep-linking/util';
+// export { getDeepLinkData } from './deep-linking/util';
 
+import { Logger } from './logger/logger';
 import { generateContext } from './util/config';
 import { getAppScriptsVersion, setContext } from './util/helpers';
-import { Logger } from './logger/logger';
 
 export function run(task: string) {
   try {
-    Logger.info(`ionic-app-scripts ${getAppScriptsVersion()}`, 'cyan');
+    Logger.info(`ionic-app-scripts-tiny ${getAppScriptsVersion()}`, 'cyan');
   } catch (e) {}
 
   try {

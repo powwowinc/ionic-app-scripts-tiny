@@ -1,9 +1,9 @@
-import { ChangedFile } from '../util/interfaces';
-import { hasDiagnostics } from '../logger/logger-diagnostics';
 import * as path from 'path';
 import * as tinylr from 'tiny-lr';
-import { ServeConfig } from './serve-config';
+import { hasDiagnostics } from '../logger/logger-diagnostics';
 import * as events from '../util/events';
+import { ChangedFile } from '../util/interfaces';
+import { ServeConfig } from './serve-config';
 
 
 export function createLiveReloadServer(config: ServeConfig) {

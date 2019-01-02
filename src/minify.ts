@@ -1,9 +1,7 @@
-import * as Constants from './util/constants';
-import { getBooleanPropertyValue } from './util/helpers';
-import { BuildContext } from './util/interfaces';
 import { cleancss } from './cleancss';
 import { Logger } from './logger/logger';
 import { uglifyjs } from './uglifyjs';
+import { BuildContext } from './util/interfaces';
 
 
 export function minify(context: BuildContext) {

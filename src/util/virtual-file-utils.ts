@@ -1,5 +1,3 @@
-import { Stats } from 'fs';
-
 const dev = Math.floor(Math.random() * 10000);
 
 export class VirtualStats {
