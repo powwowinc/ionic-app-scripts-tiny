@@ -1,6 +1,5 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-var chalk = require("chalk");
 var fs_1 = require("fs");
 var path_1 = require("path");
 var highlight_1 = require("../highlight/highlight");
@@ -45,7 +44,6 @@ function consoleLogDiagnostic(d) {
             if (l.errorCharStart > -1) {
                 text = consoleHighlightError(text, l.errorCharStart, l.errorLength);
             }
-            msg = chalk.dim(msg);
             if (d.language === 'javascript') {
                 msg += jsConsoleSyntaxHighlight(text);
             }
@@ -82,7 +80,7 @@ function consoleHighlightError(errorLine, errorCharStart, errorLength) {
     for (var i = 0; i < lineLength; i++) {
         var chr = errorLine.charAt(i);
         if (i >= errorCharStart && i < errorCharStart + errorLength) {
-            chr = chalk.bgRed(chr === '' ? ' ' : chr);
+            chr = chr === '' ? ' ' : chr;
         }
         lineChars.push(chr);
     }
@@ -204,11 +202,11 @@ function generateCodeBlock(d) {
 exports.generateCodeBlock = generateCodeBlock;
 function jsConsoleSyntaxHighlight(text) {
     if (text.trim().startsWith('//')) {
-        return chalk.dim(text);
+        return text;
     }
     var words = text.split(' ').map(function (word) {
         if (JS_KEYWORDS.indexOf(word) > -1) {
-            return chalk.cyan(word);
+            return word;
         }
         return word;
     });
@@ -228,7 +226,7 @@ function cssConsoleSyntaxHighlight(text, errorCharStart) {
             cssProp = false;
         }
         if (cssProp && safeChars.indexOf(c.toLowerCase()) > -1) {
-            chars.push(chalk.cyan(c));
+            chars.push(c);
             continue;
         }
         chars.push(c);

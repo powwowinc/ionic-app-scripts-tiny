@@ -9,10 +9,6 @@ import { convertDeepLinkConfigEntriesToString, getDeepLinkData, hasExistingDeepL
 
 export let existingDeepLinkConfigString: string = null;
 
-export function setExistingDeepLinkConfig(newString: string) {
-  existingDeepLinkConfigString = newString;
-}
-
 export function deepLinking(context: BuildContext) {
   const logger = new Logger(`deeplinks`);
 

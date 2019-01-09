@@ -1,13 +1,12 @@
 import { mkdirpSync } from 'fs-extra';
 import { dirname as pathDirname, join as pathJoin, relative as pathRelative, resolve as pathResolve } from 'path';
 import { Logger } from './logger/logger';
-import { fillConfigDefaults, generateContext, getUserConfigFile, replacePathVars } from './util/config';
+import { fillConfigDefaults, getUserConfigFile, replacePathVars } from './util/config';
 import * as Constants from './util/constants';
 import { emit, EventType } from './util/events';
-import { generateGlobTasks, globAll, GlobObject, GlobResult } from './util/glob-util';
+import { globAll, GlobResult } from './util/glob-util';
 import { copyFileAsync, getBooleanPropertyValue, rimRafAsync, unlinkAsync } from './util/helpers';
 import { BuildContext, ChangedFile, TaskInfo } from './util/interfaces';
-import { copyUpdate as watchCopyUpdate, Watcher } from './watch';
 
 const copyFilePathCache = new Map<string, CopyToFrom[]>();
 
@@ -242,38 +241,6 @@ function cleanConfigContent(dictionaryKeys: string[], copyConfig: CopyConfig, co
       copyOption.dest = cleanedUpDest;
     }
   });
-}
-
-export function copyConfigToWatchConfig(context: BuildContext): Watcher {
-  if (!context) {
-    context = generateContext(context);
-  }
-  const configFile = getUserConfigFile(context, taskInfo, '');
-  const copyConfig: CopyConfig = fillConfigDefaults(configFile, taskInfo.defaultConfigFile);
-  let results: GlobObject[] = [];
-  for (const key of Object.keys(copyConfig)) {
-    if (copyConfig[key] && copyConfig[key].src) {
-      const list = generateGlobTasks(copyConfig[key].src, {});
-      results = results.concat(list);
-    }
-  }
-
-  const paths: string[] = [];
-  let ignored: string[] = [];
-  for (const result of results) {
-    paths.push(result.pattern);
-    if (result.opts && result.opts.ignore) {
-      ignored = ignored.concat(result.opts.ignore);
-    }
-  }
-
-  return {
-    paths: paths,
-    options: {
-      ignored: ignored
-    },
-    callback: watchCopyUpdate
-  };
 }
 
 export const taskInfo: TaskInfo = {

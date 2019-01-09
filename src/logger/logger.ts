@@ -1,7 +1,5 @@
 import { BuildError, IgnorableError } from '../util/errors';
 import { isDebugMode } from '../util/config';
-import * as chalk from 'chalk';
-
 
 export class Logger {
   private start: number;
@@ -10,7 +8,7 @@ export class Logger {
   constructor(scope: string) {
     this.start = Date.now();
     this.scope = scope;
-    let msg = `${scope} started ${chalk.dim('...')}`;
+    let msg = `${scope} started...`;
     if (isDebugMode()) {
       msg += memoryUsage();
     }
@@ -42,14 +40,8 @@ export class Logger {
     }
 
     let msg = `${this.scope} ${type}`;
-    if (color) {
-      msg = (<any>chalk)[color](msg);
-    }
-    if (bold) {
-      msg = chalk.bold(msg);
-    }
 
-    msg += ' ' + chalk.dim(time);
+    msg += ' ' + time;
 
     if (isDebugMode()) {
       msg += memoryUsage();
@@ -112,23 +104,9 @@ export class Logger {
     if (lines.length) {
       let prefix = timePrefix();
       let lineOneMsg = lines[0].substr(prefix.length);
-      if (color) {
-        lineOneMsg = (<any>chalk)[color](lineOneMsg);
-      }
-      if (bold) {
-        lineOneMsg = chalk.bold(lineOneMsg);
-      }
-      lines[0] = chalk.dim(prefix) + lineOneMsg;
+      lines[0] = prefix + lineOneMsg;
     }
     lines.forEach((line, lineIndex) => {
-      if (lineIndex > 0) {
-        if (color) {
-          line = (<any>chalk)[color](line);
-        }
-        if (bold) {
-          line = chalk.bold(line);
-        }
-      }
       console.log(line);
     });
   }
@@ -143,7 +121,7 @@ export class Logger {
       lines[0] = prefix + lines[0].substr(prefix.length);
     }
     lines.forEach(line => {
-      console.warn(chalk.yellow(line));
+      console.warn(line);
     });
   }
 
@@ -160,16 +138,16 @@ export class Logger {
       }
     }
     lines.forEach(line => {
-      console.error(chalk.red(line));
+      console.error(line);
     });
   }
 
   static unformattedError(msg: string) {
-    console.error(chalk.red(msg));
+    console.error(msg);
   }
 
   static unformattedDebug(msg: string) {
-    console.log(chalk.cyan(msg));
+    console.log(msg);
   }
 
   /**
@@ -185,7 +163,7 @@ export class Logger {
         lines[0] = prefix + lines[0].substr(prefix.length);
       }
       lines.forEach(line => {
-        console.log(chalk.cyan(line));
+        console.log(line);
       });
     }
   }
@@ -307,5 +285,5 @@ function timePrefix() {
 
 
 function memoryUsage() {
-  return chalk.dim(` MEM: ${(process.memoryUsage().rss / 1000000).toFixed(1)}MB`);
+  return ` MEM: ${(process.memoryUsage().rss / 1000000).toFixed(1)}MB`;
 }

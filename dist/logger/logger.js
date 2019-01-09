@@ -2,12 +2,11 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 var errors_1 = require("../util/errors");
 var config_1 = require("../util/config");
-var chalk = require("chalk");
 var Logger = (function () {
     function Logger(scope) {
         this.start = Date.now();
         this.scope = scope;
-        var msg = scope + " started " + chalk.dim('...');
+        var msg = scope + " started...";
         if (config_1.isDebugMode()) {
             msg += memoryUsage();
         }
@@ -35,13 +34,7 @@ var Logger = (function () {
             }
         }
         var msg = this.scope + " " + type;
-        if (color) {
-            msg = chalk[color](msg);
-        }
-        if (bold) {
-            msg = chalk.bold(msg);
-        }
-        msg += ' ' + chalk.dim(time);
+        msg += ' ' + time;
         if (config_1.isDebugMode()) {
             msg += memoryUsage();
         }
@@ -97,23 +90,9 @@ var Logger = (function () {
         if (lines.length) {
             var prefix = timePrefix();
             var lineOneMsg = lines[0].substr(prefix.length);
-            if (color) {
-                lineOneMsg = chalk[color](lineOneMsg);
-            }
-            if (bold) {
-                lineOneMsg = chalk.bold(lineOneMsg);
-            }
-            lines[0] = chalk.dim(prefix) + lineOneMsg;
+            lines[0] = prefix + lineOneMsg;
         }
         lines.forEach(function (line, lineIndex) {
-            if (lineIndex > 0) {
-                if (color) {
-                    line = chalk[color](line);
-                }
-                if (bold) {
-                    line = chalk.bold(line);
-                }
-            }
             console.log(line);
         });
     };
@@ -131,7 +110,7 @@ var Logger = (function () {
             lines[0] = prefix + lines[0].substr(prefix.length);
         }
         lines.forEach(function (line) {
-            console.warn(chalk.yellow(line));
+            console.warn(line);
         });
     };
     /**
@@ -151,14 +130,14 @@ var Logger = (function () {
             }
         }
         lines.forEach(function (line) {
-            console.error(chalk.red(line));
+            console.error(line);
         });
     };
     Logger.unformattedError = function (msg) {
-        console.error(chalk.red(msg));
+        console.error(msg);
     };
     Logger.unformattedDebug = function (msg) {
-        console.log(chalk.cyan(msg));
+        console.log(msg);
     };
     /**
      * Prints out a blue colored DEBUG prefix. Only prints out when debug mode.
@@ -176,7 +155,7 @@ var Logger = (function () {
                 lines[0] = prefix + lines[0].substr(prefix.length);
             }
             lines.forEach(function (line) {
-                console.log(chalk.cyan(line));
+                console.log(line);
             });
         }
     };
@@ -286,5 +265,5 @@ function timePrefix() {
     return '[' + ('0' + date.getHours()).slice(-2) + ':' + ('0' + date.getMinutes()).slice(-2) + ':' + ('0' + date.getSeconds()).slice(-2) + ']';
 }
 function memoryUsage() {
-    return chalk.dim(" MEM: " + (process.memoryUsage().rss / 1000000).toFixed(1) + "MB");
+    return " MEM: " + (process.memoryUsage().rss / 1000000).toFixed(1) + "MB";
 }

@@ -43,10 +43,6 @@ var helpers_1 = require("./util/helpers");
 var interfaces_1 = require("./util/interfaces");
 var util_1 = require("./deep-linking/util");
 exports.existingDeepLinkConfigString = null;
-function setExistingDeepLinkConfig(newString) {
-    exports.existingDeepLinkConfigString = newString;
-}
-exports.setExistingDeepLinkConfig = setExistingDeepLinkConfig;
 function deepLinking(context) {
     var logger = new logger_1.Logger("deeplinks");
     return deepLinkingWorker(context).then(function (map) {

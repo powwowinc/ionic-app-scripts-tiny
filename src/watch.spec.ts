@@ -1,4 +1,4 @@
-import { join, resolve } from 'path';
+import { resolve } from 'path';
 
 import * as build from './build';
 import { BuildContext, BuildState, ChangedFile } from './util/interfaces';
@@ -186,87 +186,6 @@ describe('watch', () => {
       context = {
         fileCache: new FileCache()
       };
-    });
-
-  });
-
-  describe('prepareWatcher', () => {
-
-    it('should do nothing when options.ignored is a function', () => {
-      const ignoreFn = function(){};
-      const watcher: watch.Watcher = { options: { ignored: ignoreFn } };
-      const context: BuildContext = { srcDir: '/some/src/' };
-      watch.prepareWatcher(context, watcher);
-      expect(watcher.options.ignored).toBe(ignoreFn);
-    });
-
-    it('should set replacePathVars when options.ignored is a string', () => {
-      const watcher: watch.Watcher = { options: { ignored: join('{{SRC}}', '**', '*.spec.ts') } };
-      const context: BuildContext = { srcDir: join(process.cwd(), 'some', 'src')};
-      watch.prepareWatcher(context, watcher);
-      expect(watcher.options.ignored).toEqual(join(process.cwd(), 'some', 'src', '**', '*.spec.ts'));
-    });
-
-    it('should set replacePathVars when options.ignored is an array of strings', () => {
-      const watcher: watch.Watcher = { options: { ignored: [join('{{SRC}}', '**', '*.spec.ts'), join('{{SRC}}', 'index.html')] } };
-      const context: BuildContext = { srcDir: join(process.cwd(), 'some', 'src')};
-      watch.prepareWatcher(context, watcher);
-      expect((watcher.options.ignored as string[])[0]).toEqual(join(process.cwd(), 'some', 'src', '**', '*.spec.ts'));
-      expect((watcher.options.ignored as string[])[1]).toEqual(join(process.cwd(), 'some', 'src', 'index.html'));
-    });
-
-    it('should set replacePathVars when paths is an array', () => {
-      const watcher: watch.Watcher = { paths: [
-        join('{{SRC}}', 'some', 'path1'),
-        join('{{SRC}}', 'some', 'path2')
-      ] };
-      const context: BuildContext = { srcDir: join(process.cwd(), 'some', 'src')};
-      watch.prepareWatcher(context, watcher);
-      expect(watcher.paths.length).toEqual(2);
-      expect(watcher.paths[0]).toEqual(join(process.cwd(), 'some', 'src', 'some', 'path1'));
-      expect(watcher.paths[1]).toEqual(join(process.cwd(), 'some', 'src', 'some', 'path2'));
-    });
-
-    it('should set replacePathVars when paths is a string', () => {
-      const watcher: watch.Watcher = { paths: join('{{SRC}}', 'some', 'path')};
-      const context: BuildContext = { srcDir: join(process.cwd(), 'some', 'src')};
-      watch.prepareWatcher(context, watcher);
-      expect(watcher.paths).toEqual(join(process.cwd(), 'some', 'src', 'some', 'path'));
-    });
-
-    it('should not set options.ignoreInitial if it was provided', () => {
-      const watcher: watch.Watcher = { options: { ignoreInitial: false } };
-      const context: BuildContext = {};
-      watch.prepareWatcher(context, watcher);
-      expect(watcher.options.ignoreInitial).toEqual(false);
-    });
-
-    it('should set options.ignoreInitial to true if it wasnt provided', () => {
-      const watcher: watch.Watcher = { options: {} };
-      const context: BuildContext = {};
-      watch.prepareWatcher(context, watcher);
-      expect(watcher.options.ignoreInitial).toEqual(true);
-    });
-
-    it('should not set options.cwd from context.rootDir if it was provided', () => {
-      const watcher: watch.Watcher = { options: { cwd: '/my/cwd/' } };
-      const context: BuildContext = { rootDir: '/my/root/dir/' };
-      watch.prepareWatcher(context, watcher);
-      expect(watcher.options.cwd).toEqual('/my/cwd/');
-    });
-
-    it('should set options.cwd from context.rootDir if it wasnt provided', () => {
-      const watcher: watch.Watcher = {};
-      const context: BuildContext = { rootDir: '/my/root/dir/' };
-      watch.prepareWatcher(context, watcher);
-      expect(watcher.options.cwd).toEqual(context.rootDir);
-    });
-
-    it('should create watcher options when not provided', () => {
-      const watcher: watch.Watcher = {};
-      const context: BuildContext = {};
-      watch.prepareWatcher(context, watcher);
-      expect(watcher.options).toBeDefined();
     });
 
   });

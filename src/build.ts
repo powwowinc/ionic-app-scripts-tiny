@@ -124,7 +124,8 @@ export function buildUpdate(changedFiles: ChangedFile[], context: BuildContext) 
     // whether it was resolved or rejected, we need to do the same thing
     buildTasksPromise
       .then(buildTasksDone)
-      .catch(() => {
+      .catch(err => {
+        console.log(err);
         buildTasksDone({
           requiresAppReload: false,
           changedFiles: changedFiles

@@ -20,7 +20,6 @@ var transpile_1 = require("./transpile");
 exports.transpile = transpile_1.transpile;
 var watch_1 = require("./watch");
 exports.watch = watch_1.watch;
-exports.buildUpdate = watch_1.buildUpdate;
 __export(require("./util/config"));
 __export(require("./util/helpers"));
 __export(require("./util/interfaces"));

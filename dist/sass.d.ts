@@ -18,16 +18,7 @@ export interface SassConfig {
     sortComponentPathsFn?: (a: any, b: any) => number;
     sortComponentFilesFn?: (a: any, b: any) => number;
     variableSassFiles?: string[];
-    autoprefixer?: any;
     sourceMap?: string;
     omitSourceMapUrl?: boolean;
     sourceMapContents?: boolean;
-    postCssPlugins?: any[];
-}
-export interface SassMap {
-    version: number;
-    file: string;
-    sources: string[];
-    mappings: string;
-    names: any[];
 }

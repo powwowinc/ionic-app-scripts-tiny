@@ -8,7 +8,6 @@ var Constants = require("./util/constants");
 var events_1 = require("./util/events");
 var glob_util_1 = require("./util/glob-util");
 var helpers_1 = require("./util/helpers");
-var watch_1 = require("./watch");
 var copyFilePathCache = new Map();
 var FILTER_OUT_DIRS_FOR_CLEAN = ['{{WWW}}', '{{BUILD}}'];
 function copy(context, configFile) {
@@ -237,38 +236,6 @@ function cleanConfigContent(dictionaryKeys, copyConfig, context) {
         }
     });
 }
-function copyConfigToWatchConfig(context) {
-    if (!context) {
-        context = config_1.generateContext(context);
-    }
-    var configFile = config_1.getUserConfigFile(context, exports.taskInfo, '');
-    var copyConfig = config_1.fillConfigDefaults(configFile, exports.taskInfo.defaultConfigFile);
-    var results = [];
-    for (var _i = 0, _a = Object.keys(copyConfig); _i < _a.length; _i++) {
-        var key = _a[_i];
-        if (copyConfig[key] && copyConfig[key].src) {
-            var list = glob_util_1.generateGlobTasks(copyConfig[key].src, {});
-            results = results.concat(list);
-        }
-    }
-    var paths = [];
-    var ignored = [];
-    for (var _b = 0, results_1 = results; _b < results_1.length; _b++) {
-        var result = results_1[_b];
-        paths.push(result.pattern);
-        if (result.opts && result.opts.ignore) {
-            ignored = ignored.concat(result.opts.ignore);
-        }
-    }
-    return {
-        paths: paths,
-        options: {
-            ignored: ignored
-        },
-        callback: watch_1.copyUpdate
-    };
-}
-exports.copyConfigToWatchConfig = copyConfigToWatchConfig;
 exports.taskInfo = {
     fullArg: '--copy',
     shortArg: '-y',

@@ -1,6 +1,5 @@
 import { BuildContext, ChangedFile, DeepLinkConfigEntry } from './util/interfaces';
 export declare let existingDeepLinkConfigString: string;
-export declare function setExistingDeepLinkConfig(newString: string): void;
 export declare function deepLinking(context: BuildContext): Promise<void>;
 export declare function deepLinkingWorkerImpl(context: BuildContext, changedFiles: ChangedFile[]): Promise<Map<string, DeepLinkConfigEntry>>;
 export declare function deepLinkingUpdate(changedFiles: ChangedFile[], context: BuildContext): Promise<void>;

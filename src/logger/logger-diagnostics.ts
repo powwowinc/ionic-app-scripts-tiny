@@ -1,4 +1,3 @@
-import * as chalk from 'chalk';
 import { readFileSync, unlinkSync, writeFileSync } from 'fs';
 import { join } from 'path';
 import { highlightError } from '../highlight/highlight';
@@ -54,8 +53,6 @@ function consoleLogDiagnostic(d: Diagnostic) {
         text = consoleHighlightError(text, l.errorCharStart, l.errorLength);
       }
 
-      msg = chalk.dim(msg);
-
       if (d.language === 'javascript') {
         msg += jsConsoleSyntaxHighlight(text);
       } else if (d.language === 'scss') {
@@ -94,7 +91,7 @@ function consoleHighlightError(errorLine: string, errorCharStart: number, errorL
   for (var i = 0; i < lineLength; i++) {
     var chr = errorLine.charAt(i);
     if (i >= errorCharStart && i < errorCharStart + errorLength) {
-      chr = chalk.bgRed(chr === '' ? ' ' : chr);
+      chr = chr === '' ? ' ' : chr;
     }
     lineChars.push(chr);
   }
@@ -269,12 +266,12 @@ export function generateCodeBlock(d: Diagnostic) {
 
 function jsConsoleSyntaxHighlight(text: string) {
   if (text.trim().startsWith('//')) {
-    return chalk.dim(text);
+    return text;
   }
 
   const words = text.split(' ').map(word => {
     if (JS_KEYWORDS.indexOf(word) > -1) {
-      return chalk.cyan(word);
+      return word;
     }
     return word;
   });
@@ -299,7 +296,7 @@ function cssConsoleSyntaxHighlight(text: string, errorCharStart: number) {
       cssProp = false;
     }
     if (cssProp && safeChars.indexOf(c.toLowerCase()) > -1) {
-      chars.push(chalk.cyan(c));
+      chars.push(c);
       continue;
     }
 

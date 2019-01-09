@@ -4,7 +4,7 @@ export { clean } from './clean';
 export { copy, copyUpdate } from './copy';
 export { sass, sassUpdate } from './sass';
 export { transpile } from './transpile';
-export { watch, buildUpdate } from './watch';
+export { watch } from './watch';
 export * from './util/config';
 export * from './util/helpers';
 export * from './util/interfaces';

@@ -1,19 +1,11 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-var path_1 = require("path");
-var chokidar = require("chokidar");
 var buildTask = require("./build");
 var copy_1 = require("./copy");
 var logger_1 = require("./logger/logger");
 var transpile_1 = require("./transpile");
-var config_1 = require("./util/config");
-var Constants = require("./util/constants");
-var errors_1 = require("./util/errors");
-var helpers_1 = require("./util/helpers");
 var interfaces_1 = require("./util/interfaces");
-// https://github.com/paulmillr/chokidar
-function watch(context, configFile) {
-    configFile = config_1.getUserConfigFile(context, taskInfo, configFile);
+function watch(context) {
     // Override all build options if watch is ran.
     context.isProd = false;
     context.optimizeJs = false;
@@ -28,10 +20,17 @@ function watch(context, configFile) {
     context.deepLinkState = interfaces_1.BuildState.RequiresBuild;
     var logger = new logger_1.Logger('watch');
     function buildDone() {
-        return startWatchers(context, configFile).then(function () {
-            logger.ready();
-            process.send({ event: 'READY' });
+        // Start reading from stdin so we don't exit.
+        process.stdin.resume();
+        process.on('message', function (message) {
+            if (message.event === 'FILES_CHANGED') {
+                var changedFiles = runBuildUpdate(context, message.data);
+                queueOrRunBuildUpdate(changedFiles, context);
+                copy_1.copyUpdate(changedFiles, context).catch(function (e) { return console.log(e); });
+            }
         });
+        logger.ready();
+        process.send({ event: 'READY' });
     }
     return buildTask.build(context)
         .then(buildDone, function (err) {
@@ -47,139 +46,6 @@ function watch(context, configFile) {
     });
 }
 exports.watch = watch;
-function startWatchers(context, configFile) {
-    var watchConfig = config_1.fillConfigDefaults(configFile, taskInfo.defaultConfigFile);
-    var promises = [];
-    Object.keys(watchConfig).forEach(function (key) {
-        promises.push(startWatcher(key, watchConfig[key], context));
-    });
-    return Promise.all(promises);
-}
-function startWatcher(name, watcher, context) {
-    return new Promise(function (resolve, reject) {
-        // If a file isn't found (probably other scenarios too),
-        // Chokidar watches don't always trigger the ready or error events
-        // so set a timeout, and clear it if they do fire
-        // otherwise, just reject the promise and log an error
-        var timeoutId = setTimeout(function () {
-            var filesWatchedString = null;
-            if (typeof watcher.paths === 'string') {
-                filesWatchedString = watcher.paths;
-            }
-            else if (Array.isArray(watcher.paths)) {
-                filesWatchedString = watcher.paths.join(', ');
-            }
-            reject(new errors_1.BuildError("A watch configured to watch the following paths failed to start. It likely that a file referenced does not exist: " + filesWatchedString));
-        }, helpers_1.getIntPropertyValue(Constants.ENV_START_WATCH_TIMEOUT));
-        prepareWatcher(context, watcher);
-        if (!watcher.paths) {
-            logger_1.Logger.error("watcher config, entry " + name + ": missing \"paths\"");
-            resolve();
-            return;
-        }
-        if (!watcher.callback) {
-            logger_1.Logger.error("watcher config, entry " + name + ": missing \"callback\"");
-            resolve();
-            return;
-        }
-        var chokidarWatcher = chokidar.watch(watcher.paths, watcher.options);
-        var eventName = 'all';
-        if (watcher.eventName) {
-            eventName = watcher.eventName;
-        }
-        chokidarWatcher.on(eventName, function (event, filePath) {
-            // if you're listening for a specific event vs 'all',
-            // the event is not included and the first param is the filePath
-            // go ahead and adjust it if filePath is null so it's uniform
-            if (!filePath) {
-                filePath = event;
-                event = watcher.eventName;
-            }
-            filePath = path_1.normalize(path_1.resolve(path_1.join(context.rootDir, filePath)));
-            logger_1.Logger.debug("watch callback start, id: " + watchCount + ", isProd: " + context.isProd + ", event: " + event + ", path: " + filePath);
-            var callbackToExecute = function (event, filePath, context, watcher) {
-                return watcher.callback(event, filePath, context);
-            };
-            callbackToExecute(event, filePath, context, watcher)
-                .then(function () {
-                logger_1.Logger.debug("watch callback complete, id: " + watchCount + ", isProd: " + context.isProd + ", event: " + event + ", path: " + filePath);
-                watchCount++;
-            })
-                .catch(function (err) {
-                logger_1.Logger.debug("watch callback error, id: " + watchCount + ", isProd: " + context.isProd + ", event: " + event + ", path: " + filePath);
-                logger_1.Logger.debug("" + err);
-                watchCount++;
-            });
-        });
-        chokidarWatcher.on('ready', function () {
-            clearTimeout(timeoutId);
-            logger_1.Logger.debug("watcher ready: " + watcher.options.cwd + watcher.paths);
-            resolve();
-        });
-        chokidarWatcher.on('error', function (err) {
-            clearTimeout(timeoutId);
-            reject(new errors_1.BuildError("watcher error: " + watcher.options.cwd + watcher.paths + ": " + err));
-        });
-    });
-}
-function prepareWatcher(context, watcher) {
-    watcher.options = watcher.options || {};
-    if (!watcher.options.cwd) {
-        watcher.options.cwd = context.rootDir;
-    }
-    if (typeof watcher.options.ignoreInitial !== 'boolean') {
-        watcher.options.ignoreInitial = true;
-    }
-    if (watcher.options.ignored) {
-        if (Array.isArray(watcher.options.ignored)) {
-            watcher.options.ignored = watcher.options.ignored.map(function (p) { return path_1.normalize(config_1.replacePathVars(context, p)); });
-        }
-        else if (typeof watcher.options.ignored === 'string') {
-            // it's a string, so just do it once and leave it
-            watcher.options.ignored = path_1.normalize(config_1.replacePathVars(context, watcher.options.ignored));
-        }
-    }
-    if (watcher.paths) {
-        if (Array.isArray(watcher.paths)) {
-            watcher.paths = watcher.paths.map(function (p) { return path_1.normalize(config_1.replacePathVars(context, p)); });
-        }
-        else {
-            watcher.paths = path_1.normalize(config_1.replacePathVars(context, watcher.paths));
-        }
-    }
-}
-exports.prepareWatcher = prepareWatcher;
-var queuedWatchEventsMap = new Map();
-var queuedWatchEventsTimerId;
-function buildUpdate(event, filePath, context) {
-    return queueWatchUpdatesForBuild(event, filePath, context);
-}
-exports.buildUpdate = buildUpdate;
-function queueWatchUpdatesForBuild(event, filePath, context) {
-    var changedFile = {
-        event: event,
-        filePath: filePath,
-        ext: path_1.extname(filePath).toLowerCase()
-    };
-    queuedWatchEventsMap.set(filePath, changedFile);
-    // debounce our build update incase there are multiple files
-    clearTimeout(queuedWatchEventsTimerId);
-    // run this code in a few milliseconds if another hasn't come in behind it
-    queuedWatchEventsTimerId = setTimeout(function () {
-        // figure out what actually needs to be rebuilt
-        var queuedChangeFileList = [];
-        queuedWatchEventsMap.forEach(function (changedFile) { return queuedChangeFileList.push(changedFile); });
-        var changedFiles = runBuildUpdate(context, queuedChangeFileList);
-        // clear out all the files that are queued up for the build update
-        queuedWatchEventsMap.clear();
-        if (changedFiles && changedFiles.length) {
-            // cool, we've got some build updating to do ;)
-            queueOrRunBuildUpdate(changedFiles, context);
-        }
-    }, BUILD_UPDATE_DEBOUNCE_MS);
-    return Promise.resolve();
-}
-exports.queueWatchUpdatesForBuild = queueWatchUpdatesForBuild;
 // exported just for use in unit testing
 exports.buildUpdatePromise = null;
 exports.queuedChangedFileMap = new Map();
@@ -212,38 +78,12 @@ function queueOrRunBuildUpdate(changedFiles, context) {
         };
         exports.buildUpdatePromise = buildTask.buildUpdate(changedFiles, context);
         return exports.buildUpdatePromise.then(buildUpdateCompleteCallback_1).catch(function (err) {
+            console.log(err);
             return buildUpdateCompleteCallback_1();
         });
     }
 }
 exports.queueOrRunBuildUpdate = queueOrRunBuildUpdate;
-var queuedCopyChanges = [];
-var queuedCopyTimerId;
-function copyUpdate(event, filePath, context) {
-    var changedFile = {
-        event: event,
-        filePath: filePath,
-        ext: path_1.extname(filePath).toLowerCase()
-    };
-    // do not allow duplicates
-    if (!queuedCopyChanges.some(function (f) { return f.filePath === filePath; })) {
-        queuedCopyChanges.push(changedFile);
-        // debounce our build update incase there are multiple files
-        clearTimeout(queuedCopyTimerId);
-        // run this code in a few milliseconds if another hasn't come in behind it
-        queuedCopyTimerId = setTimeout(function () {
-            var changedFiles = queuedCopyChanges.concat([]);
-            // clear out all the files that are queued up for the build update
-            queuedCopyChanges.length = 0;
-            if (changedFiles && changedFiles.length) {
-                // cool, we've got some build updating to do ;)
-                copy_1.copyUpdate(changedFiles, context);
-            }
-        }, BUILD_UPDATE_DEBOUNCE_MS);
-    }
-    return Promise.resolve();
-}
-exports.copyUpdate = copyUpdate;
 function runBuildUpdate(context, changedFiles) {
     if (!changedFiles || !changedFiles.length) {
         return null;
@@ -318,12 +158,3 @@ function runBuildUpdate(context, changedFiles) {
     return changedFiles.concat();
 }
 exports.runBuildUpdate = runBuildUpdate;
-var taskInfo = {
-    fullArg: '--watch',
-    shortArg: null,
-    envVar: 'IONIC_WATCH',
-    packageConfig: 'ionic_watch',
-    defaultConfigFile: 'watch.config'
-};
-var watchCount = 0;
-var BUILD_UPDATE_DEBOUNCE_MS = 300;

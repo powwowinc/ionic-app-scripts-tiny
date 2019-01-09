@@ -163,7 +163,8 @@ function buildUpdate(changedFiles, context) {
         // whether it was resolved or rejected, we need to do the same thing
         buildTasksPromise
             .then(buildTasksDone)
-            .catch(function () {
+            .catch(function (err) {
+            console.log(err);
             buildTasksDone({
                 requiresAppReload: false,
                 changedFiles: changedFiles
