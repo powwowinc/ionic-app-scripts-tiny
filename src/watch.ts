@@ -36,7 +36,9 @@ export function watch(context?: BuildContext) {
     });
 
     logger.ready();
-    process.send({event: 'READY'});
+    if (process.send) {
+      process.send({event: 'READY'});
+    }
   }
 
   return buildTask.build(context)

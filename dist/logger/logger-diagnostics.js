@@ -7,7 +7,9 @@ var helpers_1 = require("../util/helpers");
 var logger_1 = require("./logger");
 function printDiagnostics(context, diagnosticsType, diagnostics, consoleLogDiagnostics, writeHtmlDiagnostics) {
     if (diagnostics && diagnostics.length) {
-        process.send({ event: 'BUILD_ERROR', data: diagnostics });
+        if (process.send) {
+            process.send({ event: 'BUILD_ERROR', data: diagnostics });
+        }
         if (consoleLogDiagnostics) {
             diagnostics.forEach(consoleLogDiagnostic);
         }

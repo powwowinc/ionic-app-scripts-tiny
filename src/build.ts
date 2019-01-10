@@ -76,7 +76,9 @@ function buildProject(context: BuildContext) {
 export function buildUpdate(changedFiles: ChangedFile[], context: BuildContext) {
   return new Promise(resolve => {
     const logger = new Logger('build');
-    process.send({event: 'BUILD_STARTED'});
+    if (process.send) {
+      process.send({event: 'BUILD_STARTED'});
+    }
 
     buildId++;
 
@@ -108,7 +110,9 @@ export function buildUpdate(changedFiles: ChangedFile[], context: BuildContext) 
         }
 
         logger.finish('green', true);
-        process.send({event: 'BUILD_FINISHED'});
+        if (process.send) {
+          process.send({event: 'BUILD_FINISHED'});
+        }
         Logger.newLine();
 
         // we did it!

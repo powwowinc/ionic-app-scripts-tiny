@@ -124,7 +124,9 @@ function buildProject(context) {
 function buildUpdate(changedFiles, context) {
     return new Promise(function (resolve) {
         var logger = new logger_1.Logger('build');
-        process.send({ event: 'BUILD_STARTED' });
+        if (process.send) {
+            process.send({ event: 'BUILD_STARTED' });
+        }
         buildId++;
         var buildUpdateMsg = {
             buildId: buildId,
@@ -150,7 +152,9 @@ function buildUpdate(changedFiles, context) {
                     events_1.emit(events_1.EventType.FileChange, resolveValue.changedFiles);
                 }
                 logger.finish('green', true);
-                process.send({ event: 'BUILD_FINISHED' });
+                if (process.send) {
+                    process.send({ event: 'BUILD_FINISHED' });
+                }
                 logger_1.Logger.newLine();
                 // we did it!
                 resolve();

@@ -18,12 +18,16 @@ process.on('message', function (incomingMsg) {
         var outgoingMsg = {
             transpileSuccess: true
         };
-        process.send(outgoingMsg);
+        if (process.send) {
+            process.send(outgoingMsg);
+        }
     })
         .catch(function () {
         var outgoingMsg = {
             transpileSuccess: false
         };
-        process.send(outgoingMsg);
+        if (process.send) {
+            process.send(outgoingMsg);
+        }
     });
 });
