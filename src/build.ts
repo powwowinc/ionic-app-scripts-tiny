@@ -178,12 +178,17 @@ function buildUpdateTasks(changedFiles: ChangedFile[], context: BuildContext) {
         // cleanup changed source files from the cache
         let tsConfig = getTsConfig(context);
         let host = getInMemoryCompilerHostInstance(tsConfig.options);
-        changedFiles.forEach(file => {
-          if (file.ext === '.ts' && file.event === 'change') {
-            host.removeSourceFile(file.filePath);
-          }
-        });
-
+        if (changedFiles.length) {
+          // in case of iterative build:
+          changedFiles.forEach(file => {
+            if (file.ext === '.ts' && file.event === 'change') {
+              host.removeSourceFile(file.filePath);
+            }
+          });
+        } else {
+          // in case of rebuild:
+          host.clear();
+        }
         // run the whole transpile
         resolveValue.requiresAppReload = true;
         return transpile(context);

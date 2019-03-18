@@ -23,10 +23,17 @@ function watch(context) {
         // Start reading from stdin so we don't exit.
         process.stdin.resume();
         process.on('message', function (message) {
-            if (message.event === 'FILES_CHANGED') {
-                var changedFiles = runBuildUpdate(context, message.data);
-                queueOrRunBuildUpdate(changedFiles, context);
-                copy_1.copyUpdate(changedFiles, context).catch(function (e) { return console.log(e); });
+            switch (message.event) {
+                case 'FILES_CHANGED':
+                    var changedFiles = runBuildUpdate(context, message.data);
+                    queueOrRunBuildUpdate(changedFiles, context);
+                    copy_1.copyUpdate(changedFiles, context).catch(function (e) { return console.log(e); });
+                    break;
+                case 'REBUILD':
+                    context.transpileState = interfaces_1.BuildState.RequiresBuild;
+                    context.deepLinkState = interfaces_1.BuildState.RequiresBuild;
+                    queueOrRunBuildUpdate([], context);
+                    break;
             }
         });
         logger.ready();

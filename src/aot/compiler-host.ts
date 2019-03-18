@@ -85,6 +85,10 @@ export class InMemoryCompilerHost implements CompilerHost {
     this.sourceFileMap.delete(filePath);
   }
 
+  clear() {
+    this.sourceFileMap.clear();
+  }
+
   getCancellationToken(): CancellationToken {
     return this.diskCompilerHost.getCancellationToken();
   }
