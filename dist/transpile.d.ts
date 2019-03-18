@@ -8,16 +8,8 @@ export declare function transpileUpdate(changedFiles: ChangedFile[], context: Bu
  */
 export declare function transpileWorker(context: BuildContext, workerConfig: TranspileWorkerConfig): Promise<{}>;
 export declare function canRunTranspileUpdate(event: string, filePath: string, context: BuildContext): boolean;
-export declare function transpileDiagnosticsOnly(context: BuildContext): Promise<{}>;
-export interface TranspileWorkerMessage {
-    rootDir?: string;
-    buildDir?: string;
-    configFile?: string;
-    transpileSuccess?: boolean;
-}
 export declare function getTsConfigAsync(context: BuildContext, tsConfigPath?: string): Promise<TsConfig>;
 export declare function getTsConfig(context: BuildContext, tsConfigPath?: string): TsConfig;
-export declare function transpileTsString(context: BuildContext, filePath: string, stringToTranspile: string): ts.TranspileOutput;
 export declare function transformSource(filePath: string, input: string): string;
 export declare function copyOriginalSourceFiles(fileCache: FileCache): void;
 export declare function resetSourceFiles(fileCache: FileCache): void;

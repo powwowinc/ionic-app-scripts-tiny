@@ -35,8 +35,6 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-var child_process_1 = require("child_process");
-var events_1 = require("events");
 var fs_1 = require("fs");
 var path = require("path");
 var ts = require("typescript");
@@ -228,41 +226,6 @@ function transpileUpdateWorker(event, filePath, context, workerConfig) {
         return Promise.reject(ex);
     }
 }
-function transpileDiagnosticsOnly(context) {
-    return new Promise(function (resolve) {
-        workerEvent.once('DiagnosticsWorkerDone', function () {
-            resolve();
-        });
-        runDiagnosticsWorker(context);
-    });
-}
-exports.transpileDiagnosticsOnly = transpileDiagnosticsOnly;
-var workerEvent = new events_1.EventEmitter();
-var diagnosticsWorker = null;
-function runDiagnosticsWorker(context) {
-    if (!diagnosticsWorker) {
-        var workerModule = path.join(__dirname, 'transpile-worker.js');
-        diagnosticsWorker = child_process_1.fork(workerModule, [], { env: { FORCE_COLOR: true } });
-        logger_1.Logger.debug("diagnosticsWorker created, pid: " + diagnosticsWorker.pid);
-        diagnosticsWorker.on('error', function (err) {
-            logger_1.Logger.error("diagnosticsWorker error, pid: " + diagnosticsWorker.pid + ", error: " + err);
-            workerEvent.emit('DiagnosticsWorkerDone');
-        });
-        diagnosticsWorker.on('exit', function (code) {
-            logger_1.Logger.debug("diagnosticsWorker exited, pid: " + diagnosticsWorker.pid);
-            diagnosticsWorker = null;
-        });
-        diagnosticsWorker.on('message', function (msg) {
-            workerEvent.emit('DiagnosticsWorkerDone');
-        });
-    }
-    var msg = {
-        rootDir: context.rootDir,
-        buildDir: context.buildDir,
-        configFile: getTsConfigPath(context)
-    };
-    diagnosticsWorker.send(msg);
-}
 function cleanFileNames(context, fileNames) {
     // make sure we're not transpiling the prod when dev and stuff
     return fileNames;
@@ -331,21 +294,6 @@ function getTsConfig(context, tsConfigPath) {
     return config;
 }
 exports.getTsConfig = getTsConfig;
-function transpileTsString(context, filePath, stringToTranspile) {
-    if (!cachedTsConfig) {
-        cachedTsConfig = getTsConfig(context);
-    }
-    var transpileOptions = {
-        compilerOptions: cachedTsConfig.options,
-        fileName: filePath,
-        reportDiagnostics: true,
-    };
-    transpileOptions.compilerOptions.allowJs = true;
-    transpileOptions.compilerOptions.sourceMap = true;
-    // transpile this one module
-    return ts.transpileModule(stringToTranspile, transpileOptions);
-}
-exports.transpileTsString = transpileTsString;
 function transformSource(filePath, input) {
     if (util_1.isDeepLinkingFile(filePath)) {
         input = util_1.purgeDeepLinkDecorator(input);

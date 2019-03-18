@@ -1,23 +1,31 @@
-import { ChildProcess, fork } from 'child_process';
-import { EventEmitter } from 'events';
-import { readFileSync } from 'fs';
+import {readFileSync} from 'fs';
 import * as path from 'path';
-
 import * as ts from 'typescript';
+import {getInMemoryCompilerHostInstance} from './aot/compiler-host-factory';
+import {buildJsSourceMaps} from './bundle';
+import {
+  convertDeepLinkConfigEntriesToString,
+  filterTypescriptFilesForDeepLinks,
+  getUpdatedAppNgModuleContentWithDeepLinkConfig,
+  hasExistingDeepLinkConfig,
+  isDeepLinkingFile,
+  purgeDeepLinkDecorator
+} from './deep-linking/util';
 
-import { getInMemoryCompilerHostInstance } from './aot/compiler-host-factory';
-import { buildJsSourceMaps } from './bundle';
-import { convertDeepLinkConfigEntriesToString, filterTypescriptFilesForDeepLinks, getUpdatedAppNgModuleContentWithDeepLinkConfig, hasExistingDeepLinkConfig, isDeepLinkingFile, purgeDeepLinkDecorator } from './deep-linking/util';
-
-import { Logger } from './logger/logger';
-import { clearDiagnostics, DiagnosticsType, printDiagnostics } from './logger/logger-diagnostics';
-import { runTypeScriptDiagnostics } from './logger/logger-typescript';
-import { inlineTemplate } from './template';
+import {Logger} from './logger/logger';
+import {clearDiagnostics, DiagnosticsType, printDiagnostics} from './logger/logger-diagnostics';
+import {runTypeScriptDiagnostics} from './logger/logger-typescript';
+import {inlineTemplate} from './template';
 import * as Constants from './util/constants';
-import { BuildError } from './util/errors';
-import { FileCache } from './util/file-cache';
-import { changeExtension, getBooleanPropertyValue, getParsedDeepLinkConfig, getStringPropertyValue } from './util/helpers';
-import { BuildContext, BuildState, ChangedFile } from './util/interfaces';
+import {BuildError} from './util/errors';
+import {FileCache} from './util/file-cache';
+import {
+  changeExtension,
+  getBooleanPropertyValue,
+  getParsedDeepLinkConfig,
+  getStringPropertyValue
+} from './util/helpers';
+import {BuildContext, BuildState, ChangedFile} from './util/interfaces';
 
 export function transpile(context: BuildContext) {
 
@@ -163,14 +171,12 @@ export function transpileWorker(context: BuildContext, workerConfig: TranspileWo
   });
 }
 
-
 export function canRunTranspileUpdate(event: string, filePath: string, context: BuildContext) {
   if (event === 'change' && context.fileCache) {
     return context.fileCache.has(path.resolve(filePath));
   }
   return false;
 }
-
 
 /**
  * Iterative build for one TS file. If it's not an existing file change, or
@@ -221,14 +227,14 @@ function transpileUpdateWorker(event: string, filePath: string, context: BuildCo
       // convert the path to have a .js file extension for consistency
       const newPath = changeExtension(filePath, '.js');
 
-      const sourceMapFile = { path: newPath + '.map', content: transpileOutput.sourceMapText };
+      const sourceMapFile = {path: newPath + '.map', content: transpileOutput.sourceMapText};
       let jsContent: string = transpileOutput.outputText;
       if (workerConfig.inlineTemplate) {
         // use original path for template inlining
         jsContent = inlineTemplate(transpileOutput.outputText, filePath);
       }
-      const jsFile = { path: newPath, content: jsContent };
-      const tsFile = { path: filePath, content: sourceText };
+      const jsFile = {path: newPath, content: jsContent};
+      const tsFile = {path: filePath, content: sourceText};
 
       context.fileCache.set(sourceMapFile.path, sourceMapFile);
       context.fileCache.set(jsFile.path, jsFile);
@@ -241,59 +247,6 @@ function transpileUpdateWorker(event: string, filePath: string, context: BuildCo
   }
 }
 
-
-export function transpileDiagnosticsOnly(context: BuildContext) {
-  return new Promise(resolve => {
-    workerEvent.once('DiagnosticsWorkerDone', () => {
-      resolve();
-    });
-
-    runDiagnosticsWorker(context);
-  });
-}
-
-const workerEvent = new EventEmitter();
-let diagnosticsWorker: ChildProcess = null;
-
-function runDiagnosticsWorker(context: BuildContext) {
-  if (!diagnosticsWorker) {
-    const workerModule = path.join(__dirname, 'transpile-worker.js');
-    diagnosticsWorker = fork(workerModule, [], { env: { FORCE_COLOR: true } });
-
-    Logger.debug(`diagnosticsWorker created, pid: ${diagnosticsWorker.pid}`);
-
-    diagnosticsWorker.on('error', (err: any) => {
-      Logger.error(`diagnosticsWorker error, pid: ${diagnosticsWorker.pid}, error: ${err}`);
-      workerEvent.emit('DiagnosticsWorkerDone');
-    });
-
-    diagnosticsWorker.on('exit', (code: number) => {
-      Logger.debug(`diagnosticsWorker exited, pid: ${diagnosticsWorker.pid}`);
-      diagnosticsWorker = null;
-    });
-
-    diagnosticsWorker.on('message', (msg: TranspileWorkerMessage) => {
-      workerEvent.emit('DiagnosticsWorkerDone');
-    });
-  }
-
-  const msg: TranspileWorkerMessage = {
-    rootDir: context.rootDir,
-    buildDir: context.buildDir,
-    configFile: getTsConfigPath(context)
-  };
-  diagnosticsWorker.send(msg);
-}
-
-
-export interface TranspileWorkerMessage {
-  rootDir?: string;
-  buildDir?: string;
-  configFile?: string;
-  transpileSuccess?: boolean;
-}
-
-
 function cleanFileNames(context: BuildContext, fileNames: string[]) {
   // make sure we're not transpiling the prod when dev and stuff
   return fileNames;
@@ -305,7 +258,7 @@ function writeTranspiledFilesCallback(fileCache: FileCache, sourcePath: string, 
   if (sourcePath.endsWith('.js')) {
     let file = fileCache.get(sourcePath);
     if (!file) {
-      file = { content: '', path: sourcePath };
+      file = {content: '', path: sourcePath};
     }
 
     if (shouldInlineTemplate) {
@@ -320,7 +273,7 @@ function writeTranspiledFilesCallback(fileCache: FileCache, sourcePath: string, 
 
     let file = fileCache.get(sourcePath);
     if (!file) {
-      file = { content: '', path: sourcePath };
+      file = {content: '', path: sourcePath};
     }
     file.content = data;
 
@@ -370,26 +323,8 @@ export function getTsConfig(context: BuildContext, tsConfigPath?: string): TsCon
   return config;
 }
 
-export function transpileTsString(context: BuildContext, filePath: string, stringToTranspile: string, ) {
-  if (!cachedTsConfig) {
-    cachedTsConfig = getTsConfig(context);
-  }
-
-  const transpileOptions: ts.TranspileOptions = {
-    compilerOptions: cachedTsConfig.options,
-    fileName: filePath,
-    reportDiagnostics: true,
-  };
-
-  transpileOptions.compilerOptions.allowJs = true;
-  transpileOptions.compilerOptions.sourceMap = true;
-
-  // transpile this one module
-  return ts.transpileModule(stringToTranspile, transpileOptions);
-}
-
 export function transformSource(filePath: string, input: string) {
-  if (isDeepLinkingFile(filePath) ) {
+  if (isDeepLinkingFile(filePath)) {
     input = purgeDeepLinkDecorator(input);
   } else if (filePath === getStringPropertyValue(Constants.ENV_APP_NG_MODULE_PATH) && !hasExistingDeepLinkConfig(filePath, input)) {
     const deepLinkString = convertDeepLinkConfigEntriesToString(getParsedDeepLinkConfig());
