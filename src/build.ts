@@ -1,19 +1,24 @@
-import { readVersionOfDependencies, scanSrcTsFiles, validateRequiredFilesExist, validateTsConfigSettings } from './build/util';
-import { bundle, bundleUpdate } from './bundle';
-import { copy } from './copy';
-import { deepLinking, deepLinkingUpdate } from './deep-linking';
-import { Logger } from './logger/logger';
-import { postprocess } from './postprocess';
-import { preprocess, preprocessUpdate } from './preprocess';
-import { sass, sassUpdate } from './sass';
-import { templateUpdate } from './template';
-import { transpile, transpileDiagnosticsOnly, transpileUpdate, getTsConfig } from './transpile';
+import {
+  readVersionOfDependencies,
+  scanSrcTsFiles,
+  validateRequiredFilesExist,
+  validateTsConfigSettings
+} from './build/util';
+import {bundle, bundleUpdate} from './bundle';
+import {copy} from './copy';
+import {deepLinking, deepLinkingUpdate} from './deep-linking';
+import {Logger} from './logger/logger';
+import {postprocess} from './postprocess';
+import {preprocess, preprocessUpdate} from './preprocess';
+import {sass, sassUpdate} from './sass';
+import {templateUpdate} from './template';
+import {getTsConfig, transpile, transpileUpdate} from './transpile';
 import * as Constants from './util/constants';
-import { BuildError } from './util/errors';
-import { emit, EventType } from './util/events';
-import { getBooleanPropertyValue, readFileAsync, setContext } from './util/helpers';
-import { BuildContext, BuildState, BuildUpdateMessage, ChangedFile } from './util/interfaces';
-import { getInMemoryCompilerHostInstance } from './aot/compiler-host-factory';
+import {BuildError} from './util/errors';
+import {emit, EventType} from './util/events';
+import {getBooleanPropertyValue, readFileAsync, setContext} from './util/helpers';
+import {BuildContext, BuildState, BuildUpdateMessage, ChangedFile} from './util/interfaces';
+import {getInMemoryCompilerHostInstance} from './aot/compiler-host-factory';
 
 export function build(context: BuildContext) {
   setContext(context);
@@ -25,7 +30,9 @@ export function build(context: BuildContext) {
       logger.finish();
     })
     .catch(err => {
-      if (err.isFatal) { throw err; }
+      if (err.isFatal) {
+        throw err;
+      }
       throw logger.fail(err);
     });
 }
@@ -91,42 +98,32 @@ export function buildUpdate(changedFiles: ChangedFile[], context: BuildContext) 
     function buildTasksDone(resolveValue: BuildTaskResolveValue) {
       // all build tasks have been resolved or one of them
       // bailed early, stopping all others to not run
+      const buildUpdateMsg: BuildUpdateMessage = {
+        buildId: buildId,
+        reloadApp: resolveValue.requiresAppReload
+      };
+      emit(EventType.BuildUpdateCompleted, buildUpdateMsg);
 
-      parallelTasksPromise.then(() => {
-        // all parallel tasks are also done
-        // so now we're done done
-        const buildUpdateMsg: BuildUpdateMessage = {
-          buildId: buildId,
-          reloadApp: resolveValue.requiresAppReload
-        };
-        emit(EventType.BuildUpdateCompleted, buildUpdateMsg);
+      if (!resolveValue.requiresAppReload) {
+        // just emit that only a certain file changed
+        // this one is useful when only a sass changed happened
+        // and the webpack only needs to livereload the css
+        // but does not need to do a full page refresh
+        emit(EventType.FileChange, resolveValue.changedFiles);
+      }
 
-        if (!resolveValue.requiresAppReload) {
-          // just emit that only a certain file changed
-          // this one is useful when only a sass changed happened
-          // and the webpack only needs to livereload the css
-          // but does not need to do a full page refresh
-          emit(EventType.FileChange, resolveValue.changedFiles);
-        }
+      logger.finish('green', true);
+      if (process.send) {
+        process.send({event: 'BUILD_FINISHED'});
+      }
+      Logger.newLine();
 
-        logger.finish('green', true);
-        if (process.send) {
-          process.send({event: 'BUILD_FINISHED'});
-        }
-        Logger.newLine();
-
-        // we did it!
-        resolve();
-      });
+      // we did it!
+      resolve();
     }
 
-    // kick off all the build tasks
-    // and the tasks that can run parallel to all the build tasks
-    const buildTasksPromise = buildUpdateTasks(changedFiles, context);
-    const parallelTasksPromise = buildUpdateParallelTasks(changedFiles, context);
-
     // whether it was resolved or rejected, we need to do the same thing
-    buildTasksPromise
+    buildUpdateTasks(changedFiles, context)
       .then(buildTasksDone)
       .catch(err => {
         console.log(err);
@@ -178,12 +175,17 @@ function buildUpdateTasks(changedFiles: ChangedFile[], context: BuildContext) {
         // cleanup changed source files from the cache
         let tsConfig = getTsConfig(context);
         let host = getInMemoryCompilerHostInstance(tsConfig.options);
-        changedFiles.forEach(file => {
-          if (file.ext === '.ts' && file.event === 'change') {
-            host.removeSourceFile(file.filePath);
-          }
-        });
-
+        if (changedFiles.length) {
+          // in case of iterative build:
+          changedFiles.forEach(file => {
+            if (file.ext === '.ts' && file.event === 'change') {
+              host.removeSourceFile(file.filePath);
+            }
+          });
+        } else {
+          // in case of rebuild:
+          host.clear();
+        }
         // run the whole transpile
         resolveValue.requiresAppReload = true;
         return transpile(context);
@@ -223,7 +225,7 @@ function buildUpdateTasks(changedFiles: ChangedFile[], context: BuildContext) {
             filePath: outputCssFile
           };
 
-          context.fileCache.set(outputCssFile, { path: outputCssFile, content: outputCssFile });
+          context.fileCache.set(outputCssFile, {path: outputCssFile, content: outputCssFile});
 
           resolveValue.changedFiles.push(changedFile);
         });
@@ -237,7 +239,7 @@ function buildUpdateTasks(changedFiles: ChangedFile[], context: BuildContext) {
             filePath: outputCssFile
           };
 
-          context.fileCache.set(outputCssFile, { path: outputCssFile, content: outputCssFile });
+          context.fileCache.set(outputCssFile, {path: outputCssFile, content: outputCssFile});
 
           resolveValue.changedFiles.push(changedFile);
         });
@@ -262,7 +264,7 @@ function loadFiles(changedFiles: ChangedFile[], context: BuildContext) {
       const promise = readFileAsync(changedFile.filePath);
       promises.push(promise);
       promise.then((content: string) => {
-        context.fileCache.set(changedFile.filePath, { path: changedFile.filePath, content: content });
+        context.fileCache.set(changedFile.filePath, {path: changedFile.filePath, content: content});
       });
     }
   }
@@ -273,21 +275,6 @@ function loadFiles(changedFiles: ChangedFile[], context: BuildContext) {
 interface BuildTaskResolveValue {
   requiresAppReload: boolean;
   changedFiles: ChangedFile[];
-}
-
-/**
- * parallelTasks are for any tasks that can run parallel to the entire
- * build, but we still need to make sure they've completed before we're
- * all done, it's also possible there are no parallelTasks at all
- */
-function buildUpdateParallelTasks(changedFiles: ChangedFile[], context: BuildContext) {
-  const parallelTasks: Promise<any>[] = [];
-
-  if (context.transpileState === BuildState.RequiresUpdate) {
-    parallelTasks.push(transpileDiagnosticsOnly(context));
-  }
-
-  return Promise.all(parallelTasks);
 }
 
 let buildId = 0;

@@ -1,9 +1,9 @@
 import * as buildTask from './build';
-import { copyUpdate as copyUpdateHandler } from './copy';
-import { Logger } from './logger/logger';
-import { canRunTranspileUpdate } from './transpile';
-import { BuildError } from './util/errors';
-import { BuildContext, BuildState, ChangedFile } from './util/interfaces';
+import {copyUpdate} from './copy';
+import {Logger} from './logger/logger';
+import {canRunTranspileUpdate} from './transpile';
+import {BuildError} from './util/errors';
+import {BuildContext, BuildState, ChangedFile} from './util/interfaces';
 
 export function watch(context?: BuildContext) {
   // Override all build options if watch is ran.
@@ -28,10 +28,17 @@ export function watch(context?: BuildContext) {
     process.stdin.resume();
 
     process.on('message', message => {
-      if (message.event === 'FILES_CHANGED') {
-        let changedFiles = runBuildUpdate(context, message.data);
-        queueOrRunBuildUpdate(changedFiles, context);
-        copyUpdateHandler(changedFiles, context).catch(e => console.log(e));
+      switch (message.event) {
+        case 'FILES_CHANGED':
+          let changedFiles = runBuildUpdate(context, message.data);
+          queueOrRunBuildUpdate(changedFiles, context);
+          copyUpdate(changedFiles, context).catch(e => console.log(e));
+          break;
+        case 'REBUILD':
+          context.transpileState = BuildState.RequiresBuild;
+          context.deepLinkState = BuildState.RequiresBuild;
+          queueOrRunBuildUpdate([], context);
+          break;
       }
     });
 
