@@ -114,7 +114,7 @@ export function buildUpdate(changedFiles: ChangedFile[], context: BuildContext) 
 
       logger.finish('green', true);
       if (process.send) {
-        process.send({event: 'BUILD_FINISHED'});
+        process.send({ event: 'BUILD_FINISHED', data: changedFiles});
       }
       Logger.newLine();
 

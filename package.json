@@ -1,6 +1,6 @@
 {
   "name": "@ionic/app-scripts-tiny",
-  "version": "3.2.1-tiny.3",
+  "version": "3.2.1-tiny.4",
   "description": "Scripts for Ionic Projects",
   "publishConfig": {
     "registry": "https://maven.dev.powwowinc.net/repository/npm-powwow"
