@@ -150,7 +150,7 @@ function buildUpdate(changedFiles, context) {
             }
             logger.finish('green', true);
             if (process.send) {
-                process.send({ event: 'BUILD_FINISHED' });
+                process.send({ event: 'BUILD_FINISHED', data: changedFiles });
             }
             logger_1.Logger.newLine();
             // we did it!
