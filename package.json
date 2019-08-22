@@ -1,6 +1,6 @@
 {
   "name": "@ionic/app-scripts-tiny",
-  "version": "3.2.1-tiny.4",
+  "version": "3.2.1-tiny.5",
   "description": "Scripts for Ionic Projects",
   "publishConfig": {
     "registry": "https://maven.dev.powwowinc.net/repository/npm-powwow"
@@ -34,7 +34,7 @@
   "dependencies": {
     "@angular-devkit/build-optimizer": "0.0.35",
     "dotenv-webpack": "^1.5.7",
-    "fs-extra": "^4.0.2",
+    "fs-extra": "^8.1.0",
     "glob": "^7.1.2",
     "json-loader": "^0.5.7",
     "node-sass": "^4.10.0",
@@ -55,7 +55,7 @@
     "@angular/platform-browser": "5.0.3",
     "@angular/platform-browser-dynamic": "5.0.3",
     "@angular/platform-server": "5.0.3",
-    "@types/fs-extra": "^4.0.8",
+    "@types/fs-extra": "^8.0.0",
     "@types/glob": "^5.0.35",
     "@types/jest": "^21.1.5",
     "@types/mock-fs": "^3.6.30",
