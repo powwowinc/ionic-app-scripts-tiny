@@ -37,7 +37,7 @@
     "fs-extra": "8.1.0",
     "glob": "7.1.4",
     "json-loader": "0.5.7",
-    "node-sass": "4.10.0",
+    "node-sass": "4.13.0",
     "os-name": "2.0.1",
     "source-map": "0.6.1",
     "tslint": "5.8.0",
